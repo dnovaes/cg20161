@@ -1,0 +1,41 @@
+*{
+	background-color:#F9C7D1;
+	font-family: Corbel;
+}
+
+html, body {
+    max-width: 100% !important;
+    #overflow-x: hidden !important;
+}
+
+#WebGL-output{
+	margin: 0 auto;
+	width: 33%;
+}
+
+#page-description{
+	text-align: center;
+}
+
+#game-info{
+	width: 20em;
+	height: 1.3em;
+	position: relative;
+	float:left;
+	vertical-align:middle;
+}
+
+#game-lives{
+	width: 4em;
+	height: 1.3em;
+	position: relative;
+	float: right;
+	font-weight: bold;
+	//color: AE1534;
+}
+
+#game-screen{
+	margin-top: -1em;
+	width: 100%;
+	height: auto;
+}
