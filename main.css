@@ -9,7 +9,7 @@ html, body {
 }
 
 #WebGL-output{
-	margin: 0 auto;
+//	margin: 0 auto;
 	width: 33%;
 }
 
@@ -38,4 +38,41 @@ html, body {
 	margin-top: -1em;
 	width: 100%;
 	height: auto;
+}
+
+#toolbar{
+  width: 15em;
+  height: 1em;
+  margin: 0em auto;
+}
+
+#button1{
+  background-color:blue;
+}
+
+#button2{
+  background-color:red;
+}
+
+.button-toolbar{
+  width: 5em;
+  text-align: center;
+  float: left;
+  color: white;
+}
+
+#game-mode{
+  width: 4em;
+  text-align: center;
+  float: left;
+  color: white;
+  background-color: orange;
+}
+
+#select-object{
+  width: 4em;
+  text-align: center;
+  float: left;
+  color: white;
+  background-color: #9fcc90;
 }
