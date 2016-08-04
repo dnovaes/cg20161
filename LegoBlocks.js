@@ -637,7 +637,7 @@ function detectKeyboardAction(){
       m.identity();
       m.makeTranslation(prevPos.x, prevPos.y, prevPos.z);
       selectedObj[1].applyMatrix(m);
-      selectedObj[1].udpateMatrix();
+      selectedObj[1].updateMatrix();
     }
 
   }else{
