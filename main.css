@@ -9,7 +9,7 @@ html, body {
 }
 
 #WebGL-output{
-	margin: 0 4em;
+	margin: 0 auto;
 	width: 33%;
 }
 
