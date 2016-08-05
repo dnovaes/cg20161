@@ -121,3 +121,9 @@ html, body {
   position:relative;
   visibility: visible;
 }
+
+#log{
+  margin: 0 auto;
+  width: 11em;
+  height: 1.3em;
+}

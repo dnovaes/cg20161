@@ -718,7 +718,7 @@ function detectKeyboardAction(){
 $(document).ready(function(){
 
     location.href = "#instructions";
-    $("#toolbar, #WebGL-output").addClass("invisible");
+    $("#toolbar, #WebGL-output, #log").addClass("invisible");
     //document.body.onkeyup =
    document.body.onkeydown = function(e){
       //48 - 55 => key code for  0-7
@@ -800,8 +800,7 @@ $(document).ready(function(){
   }, 1000/10);
 
   $("#bt-play").on("click", function(){
-    $("#WebGL-output, #toolbar").removeClass("invisible");
-    $("#WebGL-output").addClass("visible");
+    $("#WebGL-output, #toolbar, #log").removeClass("invisible");
   });
 
   $("#button1, #button2").on("click", function(){
@@ -813,6 +812,11 @@ $(document).ready(function(){
     editMode = 1-editMode;
     clearObjsinScene();
     selectedObj = [0, null];
+    if(visualMode){
+      $("#log-text").text("Visual Mode");
+    }else{
+      $("#log-text").text("Edit Mode");
+    }
   });
 
   //Edit-Mode
