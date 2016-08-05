@@ -717,10 +717,10 @@ function detectKeyboardAction(){
 
 $(document).ready(function(){
 
-    location.href = "#instructions";
+    //location.href = "#instructions";
     $("#toolbar, #WebGL-output, #log").addClass("invisible");
-    //document.body.onkeyup =
-   document.body.onkeydown = function(e){
+
+    document.body.onkeydown = function(e){
       //48 - 55 => key code for  0-7
      if(visualMode){
 
