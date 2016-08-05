@@ -1,7 +1,7 @@
 <html>
 
 	<head>
-		<title>MATA65 - Computacao Grafica</title>	
+		<title>MATA65 - Computacao Grafica</title>
 		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
 		<script type="text/javascript" src="libs/three.js"></script>
 		<script type="text/javascript" src="libs/jquery-3.0.0.min.js"></script>
@@ -13,17 +13,33 @@
 	<body onload="init();">
 
 		<div id="page-description">
-			<h1 style="color:#049fa9;">Atividade 1 - Diego Novaes</h1>
-			<h1>Quebra cabeças 3D baseados em "Blocos de Lego" em Three.js/WebGL.</h1>
-			<h4 style="color:#9a5e5e;"><u>Instruções</u>:  Pressione as teclas de <b>0 a 7</b> para ver os objetos</h4>
+			<h1 style="color:#049fa9;">Atividade 2 - Diego Novaes</h1>
+			<h1>Transformações Geométricas em Blocos 3D utilizando Three.js/WebGL.</h1>
+			<!--<h4 style="color:#9a5e5e;"><u>Instruções</u>:  Pressione as teclas de <b>0 a 7</b> para ver os objetos</h4>-->
 		</div>
 
     <div id="toolbar">
       <div id="button1" class="button-toolbar">Camera Mode</div>
       <div id="game-mode">Game Mode</div>
-      <div id="select-object">Select Obj</div>
+<!--      <div id="select-object">Select Obj</div>-->
 <!--      <div id="button2" class="button-toolbar">2</div>-->
     </div>
 		<div id="WebGL-output" ></div>
+    <div class="line"></div>
+    <div id="instructions" name="instructions">
+      <h3 style="color:#9a5e5e;"><u>Instruções</u></h3>
+      <p><b>1)</b> Clicando no botão "Game Mode" irá variar entre o Visual Mode (Atividade1) e o Edit Mode (Atividade2). Por padrão, o a tela começa no modo de edição.</p>
+      <p><b>2)</b> Instruções Específicas:<br><br>
+      <span style="color:red">Visual Mode:</span><br>
+      Pressione as teclas <b>0 a 7</b> para ver os objetos.<br><br>
+      <span style="color:blue">Edit Mode:</span><br>
+      -Selecione um objeto da tela apertando TAB<br>
+      -Pressionando SETAS do teclado fazem o objeto selecionado se movimentar na tela.<br>
+      -Segurando CTRL e pressionando as SETAS do teclado, fazem o objeto selecionado rotacionar.<br>
+      -As teclas '+' e '-' fazem o objeto selecionado aumentar ou diminuir o tamanho respectivamente.</p>
+    </div>
+    <div id="bt-play">Play Game</div>
+
+    <br><br><br>
 	</body>
 </html>

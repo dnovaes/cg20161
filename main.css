@@ -9,7 +9,7 @@ html, body {
 }
 
 #WebGL-output{
-	margin: 0 auto;
+	margin: 0 4em;
 	width: 33%;
 }
 
@@ -41,13 +41,18 @@ html, body {
 }
 
 #toolbar{
-  width: 15em;
-  height: 1em;
+  width: 9em;
+  height: 2.5em;
   margin: 0em auto;
 }
 
 #button1{
   background-color:blue;
+  cursor:pointer;
+}
+
+#button1:hover, #game-mode:hover{
+  font-weight: 900;
 }
 
 #button2{
@@ -67,6 +72,7 @@ html, body {
   float: left;
   color: white;
   background-color: orange;
+  cursor:pointer;
 }
 
 #select-object{
@@ -75,4 +81,43 @@ html, body {
   float: left;
   color: white;
   background-color: #9fcc90;
+}
+
+#instructions{
+  text-align: center;
+}
+
+.line{
+  background-color: #607D8B;
+  margin-top: 1em;
+  width: 100%;
+  height: 0.1em;
+}
+
+#bt-play{
+  width: 5em;
+  height: 2em;
+  text-align: center;
+  background-color: red;
+  color: white;
+  margin: 0 auto;
+  line-height: 2em;
+  cursor:pointer;
+}
+
+#bt-play:hover{
+  background-color: white;
+  color: red;
+  font-weight:bold;
+}
+
+.invisible{
+  position:absolute;
+//  top: -99999px;
+  visibility: hidden;
+}
+
+.visible{
+  position:relative;
+  visibility: visible;
 }

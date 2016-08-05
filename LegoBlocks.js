@@ -3,8 +3,8 @@ var stats, camera, scene, renderer;
 //var cameraFixedtoDraw = new THREE.Vector3( 50.0,  -150.0,   50.0); //For tests and study
 var cameraFixedtoDraw = new THREE.Vector3( 0.0, 0., 0.0); //For tests and study
 var cameraFixedFlag = 0;
-var visualMode = 1;
-var editMode = 0;
+var visualMode = 0;
+var editMode = 1;
 var selectedObj = [0, null];
 //scene.children[0] = orthographicCamera. PS for nextObjs.
 var nextObj = 1;
@@ -55,9 +55,9 @@ function render(){
   if(!cameraFixedFlag){
     //retorna o número de milisegundos decorridos desde 1 de janeiro de 1970 00:00:00 UTC.
     var timer = Date.now() * 0.0005;
-  	camera.position.x = Math.cos( timer ) * 0.5;
-	  camera.position.y = Math.sin( timer ) * 0.5;
-	  camera.position.z = Math.sin( timer ) * 0.5;
+  	camera.position.x = Math.cos( timer ) * 0.4;
+	  camera.position.y = Math.sin( timer ) * 0.4;
+	  camera.position.z = Math.sin( timer ) * 0.4;
     camera.lookAt( scene.position);
   }else{
     camera.position.x = 0;
@@ -412,9 +412,9 @@ function checkObjinCenter(){
   if(scene.children.length > 1){
     for(i=1; i<scene.children.length; i++){
       //console.log(scene.children[i].position);
-      if(Math.abs(scene.children[i].position.x == 0.0)
-        &&(Math.abs(scene.children[i].position.x == 0.0))
-        &&(Math.abs(scene.children[i].position.x == 0.0))
+      if((scene.children[i].position.x == 0.0)
+        &&(scene.children[i].position.y == 0.0)
+        &&(scene.children[i].position.z == 0.0)
       ){
         return 1;
       }
@@ -436,35 +436,75 @@ function addObjinScene(numBlock){
   switch(numBlock){
     case 0:
       var Obj = new LegoBlock0();
-      scene.add(Obj.Mesh);
+      var group = new THREE.Object3D();
+      var axis =  new THREE.AxisHelper(0.45);
+      axis.visible = false;
+      group.add(Obj.Mesh);
+      group.add(axis);
+      scene.add(group);
       break;
     case 1:
       var Obj = new LegoBlock1();
-      scene.add(Obj.Mesh);
+      var group = new THREE.Object3D();
+      var axis =  new THREE.AxisHelper(0.45);
+      axis.visible = false;
+      group.add(Obj.Mesh);
+      group.add(axis);
+      scene.add(group);
       break;
     case 2:
       var Obj = new LegoBlock2();
-      scene.add(Obj.Mesh);
+      var group = new THREE.Object3D();
+      var axis =  new THREE.AxisHelper(0.45);
+      axis.visible = false;
+      group.add(Obj.Mesh);
+      group.add(axis);
+      scene.add(group);
       break;
     case 3:
       var Obj = new LegoBlock3();
-      scene.add(Obj.Mesh);
+      var group = new THREE.Object3D();
+      var axis =  new THREE.AxisHelper(0.45);
+      axis.visible = false;
+      group.add(Obj.Mesh);
+      group.add(axis);
+      scene.add(group);
       break;
     case 4:
       var Obj = new LegoBlock4();
-      scene.add(Obj.Mesh);
+      var group = new THREE.Object3D();
+      var axis =  new THREE.AxisHelper(0.45);
+      axis.visible = false;
+      group.add(Obj.Mesh);
+      group.add(axis);
+      scene.add(group);
       break;
     case 5:
       var Obj = new LegoBlock5();
-      scene.add(Obj.Mesh);
+      var group = new THREE.Object3D();
+      var axis =  new THREE.AxisHelper(0.45);
+      axis.visible = false;
+      group.add(Obj.Mesh);
+      group.add(axis);
+      scene.add(group);
       break
     case 6:
       var Obj = new LegoBlock6();
-      scene.add(Obj.Mesh);
+      var group = new THREE.Object3D();
+      var axis =  new THREE.AxisHelper(0.45);
+      axis.visible = false;
+      group.add(Obj.Mesh);
+      group.add(axis);
+      scene.add(group);
       break;
     case 7:
       var Obj = new LegoBlock7();
-      scene.add(Obj.Mesh);
+      var group = new THREE.Object3D();
+      var axis =  new THREE.AxisHelper(0.45);
+      axis.visible = false;
+      group.add(Obj.Mesh);
+      group.add(axis);
+      scene.add(group);
       break;
   }
   var m = new THREE.Matrix4();
@@ -480,19 +520,29 @@ function addObjinScene(numBlock){
 }
 
 function doSelectObjinScene(indexObj){
-
   if(scene.children.length > 1){
     changeOpacityByIndexSceneObj(indexObj, 0.4);
+    //make axisHelper visible.
+    //scene.children[indexObj] = group  | scene.children[indexObj].children[1] = axisHelper
+    scene.children[indexObj].children[1].visible = true;
+
+    //update the current pos and next pos for the obj
     selectedObj = [indexObj, scene.children[indexObj]];
     nextObj = ((indexObj) % (scene.children.length-1))+1;
     //console.log("Next obj index: "+nextObj);
   }
 }
 
+//changing the opacity of the obj make the use to see if the object is selected or not.
 function changeOpacityByIndexSceneObj(indexObj, val){
-  for(var i=0; i<scene.children[indexObj].material.materials.length; i++){
-    scene.children[indexObj].material.materials[i].opacity = val;
-    scene.children[indexObj].material.materials[i].transparent = true;
+  for(var i=0; i<scene.children[indexObj].children[0].material.materials.length; i++){
+    scene.children[indexObj].children[0].material.materials[i].opacity = val;
+    scene.children[indexObj].children[0].material.materials[i].transparent = true;
+  }
+  //value = 1.0, then the application is making all the faces visible with no transparency.
+  //then its not a selected object anymore. hide the axisHelper with it too.
+  if(val == 1){
+    scene.children[indexObj].children[1].visible = false;
   }
 }
 
@@ -542,22 +592,40 @@ function detectKeyboardAction(){
       if(keyMap[40]){
         //save the previous pos
         prevPos = selectedObj[1].position;
-        console.log(selectedObj[1].position);
         m.makeTranslation(0.0, -0.1, 0.0);
         selectedObj[1].applyMatrix(m);
         selectedObj[1].updateMatrix();
-        console.log(selectedObj[1].position);
       }
       //plus (scale up)
       if(keyMap[107]){
+        var prevPos = getCurrPosfromSelectedObj();
+
+        m.makeTranslation(-prevPos.x, -prevPos.y, -prevPos.z);
+        selectedObj[1].applyMatrix(m);
+        selectedObj[1].updateMatrix();
+
         m.makeScale(1.1, 1.1, 1.1);
         selectedObj[1].applyMatrix(m)
+        selectedObj[1].updateMatrix();
+
+        m.makeTranslation(prevPos.x, prevPos.y, prevPos.z);
+        selectedObj[1].applyMatrix(m);
         selectedObj[1].updateMatrix();
       }
       //minus (scale down)
       if(keyMap[109]){
+        var prevPos = getCurrPosfromSelectedObj();
+
+        m.makeTranslation(-prevPos.x, -prevPos.y, -prevPos.z);
+        selectedObj[1].applyMatrix(m);
+        selectedObj[1].updateMatrix();
+
         m.makeScale(0.9, 0.9, 0.9);
         selectedObj[1].applyMatrix(m)
+        selectedObj[1].updateMatrix();
+
+        m.makeTranslation(prevPos.x, prevPos.y, prevPos.z);
+        selectedObj[1].applyMatrix(m);
         selectedObj[1].updateMatrix();
       }
     }
@@ -571,12 +639,10 @@ function detectKeyboardAction(){
       selectedObj[1].applyMatrix(m);
       selectedObj[1].updateMatrix();
 
-      m.identity();
       m.makeRotationY(-Math.PI/4);
       selectedObj[1].applyMatrix(m);
       selectedObj[1].updateMatrix();
 
-      m.identity();
       m.makeTranslation(prevPos.x, prevPos.y, prevPos.z);
       selectedObj[1].applyMatrix(m);
       selectedObj[1].updateMatrix();
@@ -591,13 +657,10 @@ function detectKeyboardAction(){
       selectedObj[1].applyMatrix(m);
       selectedObj[1].updateMatrix();
 
-      m.identity();
       m.makeRotationY(Math.PI/4);
       selectedObj[1].applyMatrix(m);
       selectedObj[1].updateMatrix();
 
-      m.identity();
-      console.log(prevPos);
       m.makeTranslation(prevPos.x, prevPos.y, prevPos.z);
       selectedObj[1].applyMatrix(m);
       selectedObj[1].updateMatrix();
@@ -611,12 +674,10 @@ function detectKeyboardAction(){
       selectedObj[1].applyMatrix(m);
       selectedObj[1].updateMatrix();
 
-      m.identity();
       m.makeRotationX(-Math.PI/4);
       selectedObj[1].applyMatrix(m);
       selectedObj[1].updateMatrix();
 
-      m.identity();
       m.makeTranslation(prevPos.x, prevPos.y, prevPos.z);
       selectedObj[1].applyMatrix(m);
       selectedObj[1].updateMatrix();
@@ -634,7 +695,6 @@ function detectKeyboardAction(){
       selectedObj[1].applyMatrix(m);
       selectedObj[1].updateMatrix();
 
-      m.identity();
       m.makeTranslation(prevPos.x, prevPos.y, prevPos.z);
       selectedObj[1].applyMatrix(m);
       selectedObj[1].updateMatrix();
@@ -656,6 +716,9 @@ function detectKeyboardAction(){
 }
 
 $(document).ready(function(){
+
+    location.href = "#instructions";
+    $("#toolbar, #WebGL-output").addClass("invisible");
     //document.body.onkeyup =
    document.body.onkeydown = function(e){
       //48 - 55 => key code for  0-7
@@ -717,6 +780,7 @@ $(document).ready(function(){
        }
      }else if(editMode){
         if(e.keyCode == 9){
+          //console.log("check if there is any selected obj ", selectedObj);
           if(selectedObj[1] != null){
             changeOpacityByIndexSceneObj(selectedObj[0], 1.0);
           }
@@ -735,6 +799,11 @@ $(document).ready(function(){
     detectKeyboardAction();
   }, 1000/10);
 
+  $("#bt-play").on("click", function(){
+    $("#WebGL-output, #toolbar").removeClass("invisible");
+    $("#WebGL-output").addClass("visible");
+  });
+
   $("#button1, #button2").on("click", function(){
     cameraFixedFlag = 1-cameraFixedFlag;
   });
@@ -743,6 +812,7 @@ $(document).ready(function(){
     visualMode = 1-visualMode;
     editMode = 1-editMode;
     clearObjsinScene();
+    selectedObj = [0, null];
   });
 
   //Edit-Mode
@@ -755,8 +825,8 @@ $(document).ready(function(){
 
   $(document).on("keydown keyup", function(e){
     keyMap[e.keyCode] = (e.type == "keydown");
-    console.log(e.keyCode);
-    if(e.keyCode != 116){
+    //console.log(e.keyCode);
+    if(e.keyCode != 116 && e.keyCode != 123){
       e.preventDefault();
     }
   });
