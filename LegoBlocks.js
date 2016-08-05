@@ -509,7 +509,7 @@ function addObjinScene(numBlock){
   }
   var m = new THREE.Matrix4();
   m.identity();
-  m.makeScale(0.8, 0.8, 0.8);
+  m.makeScale(0.7, 0.7, 0.7);
   Obj.Mesh.applyMatrix(m);
   Obj.Mesh.updateMatrix();
 
