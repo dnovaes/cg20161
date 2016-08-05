@@ -2,7 +2,7 @@
 var stats, camera, scene, renderer;
 //var cameraFixedtoDraw = new THREE.Vector3( 50.0,  -150.0,   50.0); //For tests and study
 var cameraFixedtoDraw = new THREE.Vector3( 0.0, 0., 0.0); //For tests and study
-var cameraFixedFlag = 0;
+var cameraFixedFlag = 1;
 var visualMode = 0;
 var editMode = 1;
 var selectedObj = [0, null];
