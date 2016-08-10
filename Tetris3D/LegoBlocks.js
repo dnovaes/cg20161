@@ -64,7 +64,8 @@ function init() {
   scene.add(tetrisWall);
 
   //Set the start of position for theblocks
-  startPos = {"x": 2, "y": 2, "z": 10 }
+  // the 0.5 is the adjust for the theblock stay at the center of cube
+  startPos = {"x": 2+0.5, "y": 2+0.5, "z": 9+0.5 }
 
   //triMaterial = new THREE.MeshBasicMaterial({color: 0x0000ff, wireframe: true});
   //Triangle = new THREE.Mesh(triGeometry, triMaterial);
@@ -496,7 +497,7 @@ function addObjinScene(numBlock){
   group.applyMatrix(m);
   group.updateMatrix();
 
-  m.makeTranslation(startPos.x+0.5, startPos.y+0.5, (startPos.z-2)+0.5);
+  m.makeTranslation(startPos.x, startPos.y, (startPos.z-1));
   group.applyMatrix(m);
   group.updateMatrix();
 
@@ -522,6 +523,17 @@ function doSelectObjinScene(index){
   }
 }
 
+//unselect the selected Obj if there is any.
+function unselectObj(){
+  if(selectedObj[1] != null){
+    changeOpacityByIndexSceneObj(selectedObj[0], 1.0);
+    spawnObjinCenter();
+    currIndex = scene.children.length-1;
+//    selectedObj = [currIndex, null];
+    doSelectObjinScene(currIndex);
+  }
+}
+
 function updateNextObj(){
 
     var adjustedIndex = (currIndex-2);
@@ -533,6 +545,7 @@ function updateNextObj(){
 }
 
 //changing the opacity of the obj make the use to see if the object is selected or not.
+//AND make axisHelper invisible
 function changeOpacityByIndexSceneObj(index, val){
   for(var i=0; i<scene.children[index].children[0].material.materials.length; i++){
     scene.children[index].children[0].material.materials[i].opacity = val;
@@ -700,19 +713,13 @@ function detectKeyboardAction(){
       selectedObj[1].updateMatrix();
     }
 
-  }else{
-    //non-editMode
-    //Rotation X of Camera to the left
-    if(keyMap[16] && keyMap[37]){
-      console.log("rotating in x");
-      timer = Date.now() * 0.0005;
-
-      camera.position.x = Math.cos(timer)* 0.5;
-      camera.position.z = Math.sin(timer)* 0.5;
-      //camera.up = new THREE.Vector3(0,0,1);
-      camera.lookAt(scene.position);
-    }
   }
+
+  //spawn a random block at the startPos
+  if(keyMap[13]){
+    spawnObjinCenter();
+  }
+
 }
 
 function moveSelectedObj(){
@@ -733,21 +740,22 @@ $(document).ready(function(){
       }
    }
 
-  setInterval(function(){
-
+  /*setInterval(function(){
     if(!blockMoving_f && !checkObjinCenter()){
       spawnObjinCenter();
     }
-
-  }, 3000);
+  }, 3000);*/
 
   setInterval(function(){
     detectKeyboardAction();
   }, 1000/10);
 
   setInterval(function(){
+    if(selectedObj[1].position.z == 0.5){
+      unselectObj();
+    }
     moveSelectedObj(0, 0, -1);
-  }, 1000/1);
+  }, 1500/1);
 
 
   /*$("#game-mode").on("click", function(){
@@ -764,7 +772,7 @@ $(document).ready(function(){
 
   $(document).on("keydown keyup", function(e){
     keyMap[e.keyCode] = (e.type == "keydown");
-    //console.log(e.keyCode);
+    console.log(e.keyCode);
     if(e.keyCode != 116 && e.keyCode != 123){
       e.preventDefault();
     }
