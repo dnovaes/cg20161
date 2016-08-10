@@ -608,6 +608,7 @@ function detectKeyboardAction(){
         selectedObj[1].applyMatrix(m);
         selectedObj[1].updateMatrix();
       }
+      /*
       //plus (scale up)
       if(keyMap[107]){
         var prevPos = getCurrPosfromSelectedObj();
@@ -641,6 +642,7 @@ function detectKeyboardAction(){
         selectedObj[1].applyMatrix(m);
         selectedObj[1].updateMatrix();
       }
+      */
     }
 
     //Rotation Y (ctrl + left)
@@ -652,7 +654,7 @@ function detectKeyboardAction(){
       selectedObj[1].applyMatrix(m);
       selectedObj[1].updateMatrix();
 
-      m.makeRotationY(-Math.PI/4);
+      m.makeRotationY(-Math.PI/2);
       selectedObj[1].applyMatrix(m);
       selectedObj[1].updateMatrix();
 
@@ -670,7 +672,7 @@ function detectKeyboardAction(){
       selectedObj[1].applyMatrix(m);
       selectedObj[1].updateMatrix();
 
-      m.makeRotationY(Math.PI/4);
+      m.makeRotationY(Math.PI/2);
       selectedObj[1].applyMatrix(m);
       selectedObj[1].updateMatrix();
 
@@ -687,7 +689,7 @@ function detectKeyboardAction(){
       selectedObj[1].applyMatrix(m);
       selectedObj[1].updateMatrix();
 
-      m.makeRotationX(-Math.PI/4);
+      m.makeRotationX(-Math.PI/2);
       selectedObj[1].applyMatrix(m);
       selectedObj[1].updateMatrix();
 
@@ -704,7 +706,7 @@ function detectKeyboardAction(){
       selectedObj[1].applyMatrix(m);
       selectedObj[1].updateMatrix();
 
-      m.makeRotationX(Math.PI/4);
+      m.makeRotationX(Math.PI/2);
       selectedObj[1].applyMatrix(m);
       selectedObj[1].updateMatrix();
 
@@ -714,10 +716,11 @@ function detectKeyboardAction(){
     }
 
   }
-
+  //Enter: buttom to start the game
   //spawn a random block at the startPos
   if(keyMap[13]){
     spawnObjinCenter();
+    doSelectObjinScene(scene.children.length-1);
   }
 
 }
