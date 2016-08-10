@@ -1,12 +1,16 @@
 
 var stats, camera, scene, renderer;
-var startPos = null;
-var blockMoving_f = 0;
-var selectedObj = [0, null];
+var startPos =           null;
+var blockMoving_f =         0;
+var selectedObj =   [2, null];
 //scene.children[0] = orthographicCamera. PS for nextObjs.
-var nextObj = 1;
-var keyMap = [];
-totalDiffObj = 4;
+var currIndex =             2;
+var nextObj =               2;
+var keyMap =               [];
+var totalDiffObj =          4;
+//camera and the tetrisWall
+var numUnconsideredObjs =   2;
+var depthLimit =           10;
 //z rotate camera to left with the right (inverse directionsfor camera always)
 
 function init() {
@@ -36,12 +40,11 @@ function init() {
 	stats = new Stats();
 	document.getElementById('WebGL-output').appendChild(stats.domElement);
 
-  var Axis = new THREE.AxisHelper(0.8);
-  scene.add(Axis);
+  /*var Axis = new THREE.AxisHelper(0.8);
+  scene.add(Axis);*/
 
   var tetrisWall = new THREE.Object3D();
   tetrisWall.name = "tetrisWall";
-  depthLimit = 10;
 
   //Create Vertical Wall (to the left)
   createWall(tetrisWall, "y", [0.0, 0.0, 0.0]);
@@ -61,7 +64,7 @@ function init() {
   scene.add(tetrisWall);
 
   //Set the start of position for theblocks
-  startPos = {"x": 2.5, "y": 2.5, "z": 14 }
+  startPos = {"x": 2, "y": 2, "z": 10 }
 
   //triMaterial = new THREE.MeshBasicMaterial({color: 0x0000ff, wireframe: true});
   //Triangle = new THREE.Mesh(triGeometry, triMaterial);
@@ -159,7 +162,7 @@ function createWall(tetrisWall, chrDirection, arrTransl){
             new THREE.Face3(0, 1, 2),
             new THREE.Face3(1, 2, 3)
         );
-        triMaterial = new THREE.MeshBasicMaterial({color: 0x0000ff, wireframe: true}); 
+        triMaterial = new THREE.MeshBasicMaterial({color: 0x0000ff, wireframe: true});
 
         Triangle = new THREE.Mesh(triGeometry, triMaterial);
         tetrisWall.add(Triangle);
@@ -182,7 +185,7 @@ function createWall(tetrisWall, chrDirection, arrTransl){
             new THREE.Face3(0, 1, 2),
             new THREE.Face3(1, 2, 3)
         );
-        triMaterial = new THREE.MeshBasicMaterial({color: 0x0000ff, wireframe: true}); 
+        triMaterial = new THREE.MeshBasicMaterial({color: 0x0000ff, wireframe: true});
 
         Triangle = new THREE.Mesh(triGeometry, triMaterial);
         tetrisWall.add(Triangle);
@@ -422,30 +425,30 @@ function addBlockGeometrysNextto(triangleGeometry, TransCoordObj, ArrArg){
 }
 
 function checkObjinCenter(){
-  if(scene.children.length > 1){
-    for(i=1; i<scene.children.length; i++){
+  if(scene.children.length > numUnconsideredObjs){
+    //each child of scene is a object3d (group)
+    for(i=2; i<scene.children.length; i++){
       //console.log(scene.children[i].position);
       if((scene.children[i].position.x == startPos.x)
         &&(scene.children[i].position.y == startPos.y)
-        &&(scene.children[i].position.z == startPos.z)
+        &&(scene.children[i].position.z == (startPos.z-1))
       ){
-        console.log("returned 1 for objInCenter");
-        console.log(scene.children[i]);
         return 1;
       }
     }
   }
-  console.log("return 0 for objInCenter");
   return 0;
 }
 
 function spawnObjinCenter(){
+
+  //Add a random block number
   var num = Math.floor(Math.random()*(totalDiffObj-1));
   addObjinScene(num);
-  //objects in scene = 2; (camera and the added one)
-  indexObj = selectedObj[0];
-  nextObj = (indexObj % (scene.children.length-1))+1;
-  //console.log("nextObj INDEX to select couting with the camrea index: "+nextObj);
+
+  console.log("Added object.\n");
+
+  updateNextObj();
 }
 
 function addObjinScene(numBlock){
@@ -489,13 +492,13 @@ function addObjinScene(numBlock){
   }
   var m = new THREE.Matrix4();
   m.identity();
-  m.makeScale(0.7, 0.7, 0.7);
-  Obj.Mesh.applyMatrix(m);
-  Obj.Mesh.updateMatrix();
+  m.makeScale(5.0, 5.0, 5.0);
+  group.applyMatrix(m);
+  group.updateMatrix();
 
-  m.makeTranslation(startPos.x, startPos.y, startPos.z-1);
-  Obj.Mesh.applyMatrix(m);
-  Obj.Mesh.updateMatrix();
+  m.makeTranslation(startPos.x+0.5, startPos.y+0.5, (startPos.z-2)+0.5);
+  group.applyMatrix(m);
+  group.updateMatrix();
 
   /*m.identity();
   m.makeTranslation(0.3, 0, 0);
@@ -503,30 +506,42 @@ function addObjinScene(numBlock){
   Obj.Mesh.updateMatrix();*/
 }
 
-function doSelectObjinScene(indexObj){
-  if(scene.children.length > 1){
-    changeOpacityByIndexSceneObj(indexObj, 0.4);
-    //make axisHelper visible.
-    //scene.children[indexObj] = group  | scene.children[indexObj].children[1] = axisHelper
-    scene.children[indexObj].children[1].visible = true;
+function doSelectObjinScene(index){
+  console.log("Selecting obj index: "+index);
+  //[0] = PerpectiveCamera  // [1] = tetrisWall
+  if(scene.children.length > 2){
+    changeOpacityByIndexSceneObj(index, 0.4);
+    //make axisHelper visible
+    //scene.children[index] = group  | scene.children[index].children[1] = axisHelper
+    scene.children[index].children[1].visible = true;
 
     //update the current pos and next pos for the obj
-    selectedObj = [indexObj, scene.children[indexObj]];
-    nextObj = ((indexObj) % (scene.children.length-1))+1;
-    //console.log("Next obj index: "+nextObj);
+    selectedObj = [index, scene.children[index]];
+    currIndex = index;
+    updateNextObj();
   }
 }
 
+function updateNextObj(){
+
+    var adjustedIndex = (currIndex-2);
+    console.log("index without the unconsidered objs "+(adjustedIndex+1) % (scene.children.length-numUnconsideredObjs));
+
+    nextObj = ((adjustedIndex+1) % (scene.children.length-numUnconsideredObjs))+numUnconsideredObjs;
+    console.log("NextObj: "+nextObj, "length "+scene.children.length);
+
+}
+
 //changing the opacity of the obj make the use to see if the object is selected or not.
-function changeOpacityByIndexSceneObj(indexObj, val){
-  for(var i=0; i<scene.children[indexObj].children[0].material.materials.length; i++){
-    scene.children[indexObj].children[0].material.materials[i].opacity = val;
-    scene.children[indexObj].children[0].material.materials[i].transparent = true;
+function changeOpacityByIndexSceneObj(index, val){
+  for(var i=0; i<scene.children[index].children[0].material.materials.length; i++){
+    scene.children[index].children[0].material.materials[i].opacity = val;
+    scene.children[index].children[0].material.materials[i].transparent = true;
   }
   //value = 1.0, then the application is making all the faces visible with no transparency.
   //then its not a selected object anymore. hide the axisHelper with it too.
   if(val == 1){
-    scene.children[indexObj].children[1].visible = false;
+    scene.children[index].children[1].visible = false;
   }
 }
 
@@ -555,20 +570,20 @@ function detectKeyboardAction(){
     if(keyMap[17] == null || !keyMap[17]){
       //right
       if(keyMap[39]){
-        m.makeTranslation(0.1, 0.0, 0.0);
+        m.makeTranslation(1.0, 0.0, 0.0);
         selectedObj[1].applyMatrix(m);
         selectedObj[1].updateMatrix();
       }
       //left
       if(keyMap[37]){
-        m.makeTranslation(-0.1, 0.0, 0.0);
+        m.makeTranslation(-1.0, 0.0, 0.0);
         selectedObj[1].applyMatrix(m);
         selectedObj[1].updateMatrix();
       }
       //up
       if(keyMap[38]){
         //selectedObj[1].matrix.copy(m);
-        m.makeTranslation(0.0, 0.1, 0.0);
+        m.makeTranslation(0.0, 1.0, 0.0);
         selectedObj[1].applyMatrix(m);
         selectedObj[1].updateMatrix();
       }
@@ -576,7 +591,7 @@ function detectKeyboardAction(){
       if(keyMap[40]){
         //save the previous pos
         prevPos = selectedObj[1].position;
-        m.makeTranslation(0.0, -0.1, 0.0);
+        m.makeTranslation(0.0, -1.0, 0.0);
         selectedObj[1].applyMatrix(m);
         selectedObj[1].updateMatrix();
       }
@@ -595,6 +610,7 @@ function detectKeyboardAction(){
         m.makeTranslation(prevPos.x, prevPos.y, prevPos.z);
         selectedObj[1].applyMatrix(m);
         selectedObj[1].updateMatrix();
+        console.log(selectedObj[1].scale);
       }
       //minus (scale down)
       if(keyMap[109]){
@@ -699,6 +715,12 @@ function detectKeyboardAction(){
   }
 }
 
+function moveSelectedObj(){
+  if(selectedObj[1] != null){
+    selectedObj[1].position.z+=-1;
+  }
+}
+
 $(document).ready(function(){
 
     document.body.onkeydown = function(e){
@@ -722,6 +744,10 @@ $(document).ready(function(){
   setInterval(function(){
     detectKeyboardAction();
   }, 1000/10);
+
+  setInterval(function(){
+    moveSelectedObj(0, 0, -1);
+  }, 1000/1);
 
 
   /*$("#game-mode").on("click", function(){
