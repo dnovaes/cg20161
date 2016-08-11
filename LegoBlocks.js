@@ -13,6 +13,8 @@ var numUnconsideredObjs =   2;
 var depthLimit =           10;
 var borderLimit = {"left": 0.0, "right": 5.0, "up": 5.0, "down": 0.0}
 
+var collidableList       = [];
+
 function init() {
 
 	scene = new THREE.Scene();
@@ -61,6 +63,12 @@ function init() {
   //Create FloorLimit Wall
   createWall(tetrisWall, "z", [0.0, 0.0, 0.0]);
 
+  console.log(tetrisWall.children);
+
+  collidableList.push(tetrisWall.children);
+
+  console.log(collidableList[0].children);
+
   scene.add(tetrisWall);
 
   //Set the start of position for theblocks
@@ -88,38 +96,6 @@ function init() {
 	//renderer.render(scene, camera);
 };
 
-function initGUI() {
-
-	controls = new function () {
-		this.fov 			= camera.fov;
-		this.camPosX		= camera.position.x;
-		this.camPosY		= camera.position.y;
-		this.camPosZ		= camera.position.z;
-		}
-
-	var gui = new dat.GUI();
-
-	gui.add(controls, 'fov', -10.0, 100.0).onChange(function (value) {
-		camera.fov = controls.fov;
-		camera.updateProjectionMatrix();
-		});
-
-	var fCamPos = gui.addFolder('CameraPos');
-	fCamPos.add( controls, 'camPosX', -40.0, 40.0).onChange(function (value) {
-		camera.position.x = controls.camPosX;
-		camera.updateProjectionMatrix();
-		});
-	fCamPos.add( controls, 'camPosY', -40.0, 40.0).onChange(function (value) {
-		camera.position.y = controls.camPosY;
-		camera.updateProjectionMatrix();
-		});
-	fCamPos.add( controls, 'camPosZ', -40.0, 40.0).onChange(function (value) {
-		camera.position.z = controls.camPosZ;
-		camera.updateProjectionMatrix();
-		});
-	fCamPos.close();
-};
-
 function doMoveCameraToPos(posVector3){
 	camera.position.x =  posVector3.x;
 	camera.position.y =  posVector3.y;
@@ -127,21 +103,42 @@ function doMoveCameraToPos(posVector3){
 }
 
 function activateAnimation(){
+  //animation
 	requestAnimationFrame(activateAnimation);
+
 	stats.begin();
 	renderer.clear();
-	render();
+  renderer.render(scene, camera);
+  if(selectedObj[1] != null)
+    checkColision();
 	stats.end();
 }
 
-function render(){
-	//doMoveCameraToPos(cameraFixedtoDraw);
+function checkColision(){
 
-  /*var obj = scene.getObjectByName("myObj");
-	obj.rotateX(0.007);
-	obj.rotateY(0.003);
-	obj.rotateZ(0.001);*/
-	renderer.render( scene, camera );
+  var originPoint = selectedObj[1].position.clone();
+  clearText();
+
+  var colCounter = 0;
+
+  for (var vIndex = 0; vIndex < selectedObj[1].children[0].geometry.vertices.length; vIndex++){
+    var befVertex = selectedObj[1].children[0].geometry.vertices[vIndex].clone();
+    var afterVertex = befVertex.applyMatrix4( selectedObj[1].matrix );
+    var directionVector = afterVertex.sub( selectedObj[1].position );
+
+    var ray = new THREE.Raycaster( originPoint, directionVector.clone().normalize() );
+
+    var collisionResults = ray.intersectObjects( collidableList[0] );
+
+    if( collisionResults.length > 0 && collisionResults[0].distance < directionVector.length() ){
+//      console.log("HITO!");
+      colCounter ++;
+    }
+  }
+
+  if (colCounter > 4){
+    appendText(" HITO! ");
+  }
 }
 
 function createWall(tetrisWall, chrDirection, arrTransl){
@@ -590,6 +587,7 @@ function getCurrPosfromSelectedObj(){
 }
 
 function isPossibletoGo(direction){
+  return 1;
   if(direction == "right"){
     if(selectedObj[1].bdLimit.x.max + 1.0 > borderLimit.right){
       return 0;
