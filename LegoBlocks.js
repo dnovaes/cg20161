@@ -11,7 +11,7 @@ var totalDiffObj =          4;
 //camera and the tetrisWall
 var numUnconsideredObjs =   2;
 var depthLimit =           10;
-//z rotate camera to left with the right (inverse directionsfor camera always)
+var borderLimit = {"left": 0.0, "right": 5.0, "up": 5.0, "down": 0.0}
 
 function init() {
 
@@ -21,7 +21,7 @@ function init() {
 
 	renderer.setClearColor(new THREE.Color(0.0, 0.0, 0.0));
 
-	renderer.setSize(500, 500);
+	renderer.setSize(window.innerWidth*0.97, 500);
 
 	document.getElementById("WebGL-output").appendChild(renderer.domElement);
 
@@ -47,16 +47,16 @@ function init() {
   tetrisWall.name = "tetrisWall";
 
   //Create Vertical Wall (to the left)
-  createWall(tetrisWall, "y", [0.0, 0.0, 0.0]);
+  createWall(tetrisWall, "y", [borderLimit.left, 0.0, 0.0]);
 
   //Create Vertical Wall (to the right)
-  createWall(tetrisWall, "y", [5.0, 0.0, 0.0]);
+  createWall(tetrisWall, "y", [borderLimit.right, 0.0, 0.0]);
 
   //Create Horizontal Wall
-  createWall(tetrisWall, "x", [0.0, 0.0, 0.0]);
+  createWall(tetrisWall, "x", [0.0, borderLimit.down, 0.0]);
 
   //Create Horizontal Wall
-  createWall(tetrisWall, "x", [0.0, 5.0, 0.0]);
+  createWall(tetrisWall, "x", [0.0, borderLimit.up, 0.0]);
 
   //Create FloorLimit Wall
   createWall(tetrisWall, "z", [0.0, 0.0, 0.0]);
@@ -231,14 +231,14 @@ function LegoBlock0(){
 
 		var boxMaterials = [];
 		boxMaterials.push(
-			new THREE.MeshBasicMaterial({color:0xFF0000, side:THREE.DoubleSide}), 
-			new THREE.MeshBasicMaterial({color:0x5BDF14, side:THREE.DoubleSide}), 
-			new THREE.MeshBasicMaterial({color:0x0000FF, side:THREE.DoubleSide}), 
-			new THREE.MeshBasicMaterial({color:0xF0C58D, side:THREE.DoubleSide}), 
-			new THREE.MeshBasicMaterial({color:0xE86B9C, side:THREE.DoubleSide}), 
+			new THREE.MeshBasicMaterial({color:0xFF0000, side:THREE.DoubleSide}),
+			new THREE.MeshBasicMaterial({color:0x5BDF14, side:THREE.DoubleSide}),
+			new THREE.MeshBasicMaterial({color:0x0000FF, side:THREE.DoubleSide}),
+			new THREE.MeshBasicMaterial({color:0xF0C58D, side:THREE.DoubleSide}),
+			new THREE.MeshBasicMaterial({color:0xE86B9C, side:THREE.DoubleSide}),
 			new THREE.MeshBasicMaterial({color:0xFFFFFF, side:THREE.DoubleSide})
 		);
-		var triangleMaterial = new THREE.MeshFaceMaterial(boxMaterials); 
+		var triangleMaterial = new THREE.MeshFaceMaterial(boxMaterials);
 
 		return new THREE.Mesh(triangleGeometry, triangleMaterial);
 	}
@@ -275,14 +275,14 @@ function LegoBlock1(){
 
 		var boxMaterials = [];
 		boxMaterials.push(
-			new THREE.MeshBasicMaterial({color:0xFF0000, side:THREE.DoubleSide}), 
-			new THREE.MeshBasicMaterial({color:0x5BDF14, side:THREE.DoubleSide}), 
-			new THREE.MeshBasicMaterial({color:0x0000FF, side:THREE.DoubleSide}), 
-			new THREE.MeshBasicMaterial({color:0xF0C58D, side:THREE.DoubleSide}), 
-			new THREE.MeshBasicMaterial({color:0xE86B9C, side:THREE.DoubleSide}), 
+			new THREE.MeshBasicMaterial({color:0xFF0000, side:THREE.DoubleSide}),
+			new THREE.MeshBasicMaterial({color:0x5BDF14, side:THREE.DoubleSide}),
+			new THREE.MeshBasicMaterial({color:0x0000FF, side:THREE.DoubleSide}),
+			new THREE.MeshBasicMaterial({color:0xF0C58D, side:THREE.DoubleSide}),
+			new THREE.MeshBasicMaterial({color:0xE86B9C, side:THREE.DoubleSide}),
 			new THREE.MeshBasicMaterial({color:0xFFFFFF, side:THREE.DoubleSide})
 		);
-		var triangleMaterial = new THREE.MeshFaceMaterial(boxMaterials); 
+		var triangleMaterial = new THREE.MeshFaceMaterial(boxMaterials);
 
 		return new THREE.Mesh(triangleGeometry, triangleMaterial);
 	}
@@ -302,14 +302,14 @@ function LegoBlock2(){
 
 		var boxMaterials = [];
 		boxMaterials.push(
-			new THREE.MeshBasicMaterial({color:0xFF0000, side:THREE.DoubleSide}), 
-			new THREE.MeshBasicMaterial({color:0x5BDF14, side:THREE.DoubleSide}), 
-			new THREE.MeshBasicMaterial({color:0x0000FF, side:THREE.DoubleSide}), 
-			new THREE.MeshBasicMaterial({color:0xF0C58D, side:THREE.DoubleSide}), 
-			new THREE.MeshBasicMaterial({color:0xE86B9C, side:THREE.DoubleSide}), 
+			new THREE.MeshBasicMaterial({color:0xFF0000, side:THREE.DoubleSide}),
+			new THREE.MeshBasicMaterial({color:0x5BDF14, side:THREE.DoubleSide}),
+			new THREE.MeshBasicMaterial({color:0x0000FF, side:THREE.DoubleSide}),
+			new THREE.MeshBasicMaterial({color:0xF0C58D, side:THREE.DoubleSide}),
+			new THREE.MeshBasicMaterial({color:0xE86B9C, side:THREE.DoubleSide}),
 			new THREE.MeshBasicMaterial({color:0xFFFFFF, side:THREE.DoubleSide})
 		);
-		var triangleMaterial = new THREE.MeshFaceMaterial(boxMaterials); 
+		var triangleMaterial = new THREE.MeshFaceMaterial(boxMaterials);
 
 		return new THREE.Mesh(triangleGeometry, triangleMaterial);
 	}
@@ -330,14 +330,14 @@ function LegoBlock3(){
 
 		var boxMaterials = [];
 		boxMaterials.push(
-			new THREE.MeshBasicMaterial({color:0xFF0000, side:THREE.DoubleSide}), 
-			new THREE.MeshBasicMaterial({color:0x5BDF14, side:THREE.DoubleSide}), 
-			new THREE.MeshBasicMaterial({color:0x0000FF, side:THREE.DoubleSide}), 
-			new THREE.MeshBasicMaterial({color:0xF0C58D, side:THREE.DoubleSide}), 
-			new THREE.MeshBasicMaterial({color:0xE86B9C, side:THREE.DoubleSide}), 
+			new THREE.MeshBasicMaterial({color:0xFF0000, side:THREE.DoubleSide}),
+			new THREE.MeshBasicMaterial({color:0x5BDF14, side:THREE.DoubleSide}),
+			new THREE.MeshBasicMaterial({color:0x0000FF, side:THREE.DoubleSide}),
+			new THREE.MeshBasicMaterial({color:0xF0C58D, side:THREE.DoubleSide}),
+			new THREE.MeshBasicMaterial({color:0xE86B9C, side:THREE.DoubleSide}),
 			new THREE.MeshBasicMaterial({color:0xFFFFFF, side:THREE.DoubleSide})
 		);
-		var triangleMaterial = new THREE.MeshFaceMaterial(boxMaterials); 
+		var triangleMaterial = new THREE.MeshFaceMaterial(boxMaterials);
 
 		return new THREE.Mesh(triangleGeometry, triangleMaterial);
 	}
@@ -393,33 +393,33 @@ function addBlockGeometrysNextto(triangleGeometry, TransCoordObj, ArrArg){
 
 		if(ArrArg[2] == 1){
 			// Top
-			triangleGeometry.faces.push(new THREE.Face3(5+len, 0+len, 3+len)); 
-			triangleGeometry.faces.push(new THREE.Face3(5+len, 3+len, 4+len)); 
-			triangleGeometry.faces[triangleGeometry.faces.length-2].materialIndex = 
+			triangleGeometry.faces.push(new THREE.Face3(5+len, 0+len, 3+len));
+			triangleGeometry.faces.push(new THREE.Face3(5+len, 3+len, 4+len));
+			triangleGeometry.faces[triangleGeometry.faces.length-2].materialIndex =
 			triangleGeometry.faces[triangleGeometry.faces.length-1].materialIndex = 2;
 		}
 
 		if(ArrArg[3] == 1){
 			// Bottom
-			triangleGeometry.faces.push(new THREE.Face3(6+len, 1+len, 2+len)); 
-			triangleGeometry.faces.push(new THREE.Face3(6+len, 2+len, 7+len)); 
-			triangleGeometry.faces[triangleGeometry.faces.length-2].materialIndex = 
+			triangleGeometry.faces.push(new THREE.Face3(6+len, 1+len, 2+len));
+			triangleGeometry.faces.push(new THREE.Face3(6+len, 2+len, 7+len));
+			triangleGeometry.faces[triangleGeometry.faces.length-2].materialIndex =
 			triangleGeometry.faces[triangleGeometry.faces.length-1].materialIndex = 3;
 		}
 
 		if(ArrArg[4] == 1){
 			// Left
-			triangleGeometry.faces.push(new THREE.Face3(3+len, 2+len, 7+len)); 
-			triangleGeometry.faces.push(new THREE.Face3(3+len, 7+len, 4+len)); 
-			triangleGeometry.faces[triangleGeometry.faces.length-2].materialIndex = 
+			triangleGeometry.faces.push(new THREE.Face3(3+len, 2+len, 7+len));
+			triangleGeometry.faces.push(new THREE.Face3(3+len, 7+len, 4+len));
+			triangleGeometry.faces[triangleGeometry.faces.length-2].materialIndex =
 			triangleGeometry.faces[triangleGeometry.faces.length-1].materialIndex = 4;
 		}
 
 		if(ArrArg[5] == 1){
 			// Right
-			triangleGeometry.faces.push(new THREE.Face3(5+len, 6+len, 1+len)); 
+			triangleGeometry.faces.push(new THREE.Face3(5+len, 6+len, 1+len));
 			triangleGeometry.faces.push(new THREE.Face3(5+len, 1+len, 0+len));
-			triangleGeometry.faces[triangleGeometry.faces.length-2].materialIndex = 
+			triangleGeometry.faces[triangleGeometry.faces.length-2].materialIndex =
 			triangleGeometry.faces[triangleGeometry.faces.length-1].materialIndex = 5;
 		}
 	}
@@ -445,6 +445,7 @@ function spawnObjinCenter(){
 
   //Add a random block number
   var num = Math.floor(Math.random()*(totalDiffObj-1));
+  num = 0;
   addObjinScene(num);
 
   console.log("Added object.\n");
@@ -461,6 +462,18 @@ function addObjinScene(numBlock){
       axis.visible = false;
       group.add(Obj.Mesh);
       group.add(axis);
+      group.bdLimit = {
+        "x": {"min": group.position.x-0.5, "max": group.position.x+2.5},
+        "y": {"min": group.position.y-0.5, "max": group.position.y+0.5},
+        "z": {"min": group.position.z-0.5, "max": group.position.z+0.5}
+      }
+      group.updateLimits = function(){
+        this.bdLimit = {
+          "x": {"min": group.position.x-0.5, "max": group.position.x+2.5},
+          "y": {"min": group.position.y-0.5, "max": group.position.y+0.5},
+          "z": {"min": group.position.z-0.5, "max": group.position.z+1.5}
+        }
+      }
       scene.add(group);
       break;
     case 1:
@@ -501,6 +514,9 @@ function addObjinScene(numBlock){
   group.applyMatrix(m);
   group.updateMatrix();
 
+  group.updateLimits();
+  console.log(group.position, group.bdLimit);
+
   /*m.identity();
   m.makeTranslation(0.3, 0, 0);
   Obj.Mesh.applyMatrix(m);
@@ -508,7 +524,6 @@ function addObjinScene(numBlock){
 }
 
 function doSelectObjinScene(index){
-  console.log("Selecting obj index: "+index);
   //[0] = PerpectiveCamera  // [1] = tetrisWall
   if(scene.children.length > 2){
     changeOpacityByIndexSceneObj(index, 0.4);
@@ -537,10 +552,9 @@ function unselectObj(){
 function updateNextObj(){
 
     var adjustedIndex = (currIndex-2);
-    console.log("index without the unconsidered objs "+(adjustedIndex+1) % (scene.children.length-numUnconsideredObjs));
 
     nextObj = ((adjustedIndex+1) % (scene.children.length-numUnconsideredObjs))+numUnconsideredObjs;
-    console.log("NextObj: "+nextObj, "length "+scene.children.length);
+    //console.log("NextObj: "+nextObj, "length "+scene.children.length);
 
 }
 
@@ -575,74 +589,67 @@ function getCurrPosfromSelectedObj(){
     }
 }
 
+function isPossibletoGo(direction){
+  if(direction == "right"){
+    if(selectedObj[1].bdLimit.x.max + 1.0 > borderLimit.right){
+      return 0;
+    }
+    return 1;
+  }else if(direction == "left"){
+    if(selectedObj[1].bdLimit.x.min - 1.0 < borderLimit.left){
+      return 0;
+    }
+    return 1;
+  }else if(direction == "up"){
+    if(selectedObj[1].bdLimit.y.max + 1.0 > borderLimit.up){
+      return 0;
+    }
+    return 1;
+  }else if(direction == "down"){
+    if(selectedObj[1].bdLimit.y.min - 1.0 < borderLimit.down){
+      return 0;
+    }
+    return 1;
+  }
+}
+
 function detectKeyboardAction(){
   if(selectedObj[1] != null){
     m = new THREE.Matrix4();
     m.identity();
-    //ctrl
+    //ctrl isnt pressed
     if(keyMap[17] == null || !keyMap[17]){
       //right
-      if(keyMap[39]){
+      if((keyMap[39])&&(isPossibletoGo("right"))){
         m.makeTranslation(1.0, 0.0, 0.0);
         selectedObj[1].applyMatrix(m);
         selectedObj[1].updateMatrix();
+        selectedObj[1].updateLimits();
       }
       //left
-      if(keyMap[37]){
+      if(keyMap[37] && isPossibletoGo("left")){
         m.makeTranslation(-1.0, 0.0, 0.0);
         selectedObj[1].applyMatrix(m);
         selectedObj[1].updateMatrix();
+        selectedObj[1].updateLimits();
       }
       //up
-      if(keyMap[38]){
+      if(keyMap[38] && isPossibletoGo("up")){
         //selectedObj[1].matrix.copy(m);
         m.makeTranslation(0.0, 1.0, 0.0);
         selectedObj[1].applyMatrix(m);
         selectedObj[1].updateMatrix();
+        selectedObj[1].updateLimits();
       }
       //down
-      if(keyMap[40]){
+      if(keyMap[40] && isPossibletoGo("down")){
         //save the previous pos
         prevPos = selectedObj[1].position;
         m.makeTranslation(0.0, -1.0, 0.0);
         selectedObj[1].applyMatrix(m);
         selectedObj[1].updateMatrix();
+        selectedObj[1].updateLimits();
       }
-      /*
-      //plus (scale up)
-      if(keyMap[107]){
-        var prevPos = getCurrPosfromSelectedObj();
-
-        m.makeTranslation(-prevPos.x, -prevPos.y, -prevPos.z);
-        selectedObj[1].applyMatrix(m);
-        selectedObj[1].updateMatrix();
-
-        m.makeScale(1.1, 1.1, 1.1);
-        selectedObj[1].applyMatrix(m)
-        selectedObj[1].updateMatrix();
-
-        m.makeTranslation(prevPos.x, prevPos.y, prevPos.z);
-        selectedObj[1].applyMatrix(m);
-        selectedObj[1].updateMatrix();
-        console.log(selectedObj[1].scale);
-      }
-      //minus (scale down)
-      if(keyMap[109]){
-        var prevPos = getCurrPosfromSelectedObj();
-
-        m.makeTranslation(-prevPos.x, -prevPos.y, -prevPos.z);
-        selectedObj[1].applyMatrix(m);
-        selectedObj[1].updateMatrix();
-
-        m.makeScale(0.9, 0.9, 0.9);
-        selectedObj[1].applyMatrix(m)
-        selectedObj[1].updateMatrix();
-
-        m.makeTranslation(prevPos.x, prevPos.y, prevPos.z);
-        selectedObj[1].applyMatrix(m);
-        selectedObj[1].updateMatrix();
-      }
-      */
     }
 
     //Rotation Y (ctrl + left)
@@ -661,6 +668,17 @@ function detectKeyboardAction(){
       m.makeTranslation(prevPos.x, prevPos.y, prevPos.z);
       selectedObj[1].applyMatrix(m);
       selectedObj[1].updateMatrix();
+
+      //update the border limits
+      var aux = selectedObj[1].bdLimit.z;
+
+      selectedObj[1].bdLimit.z.max = selectedObj[1].bdLimit.x.max;
+      selectedObj[1].bdLimit.z.min = selectedObj[1].bdLimit.x.min;
+
+      selectedObj[1].bdLimit.x.max = aux.max;
+      selectedObj[1].bdLimit.x.min = aux.min;
+
+      aux = null;
     }
 
     //Rotation Y (ctrl + right)
@@ -727,6 +745,11 @@ function detectKeyboardAction(){
 
 function moveSelectedObj(){
   if(selectedObj[1] != null){
+    //the line below is a trick to stop movements from player and execute the function in next
+    keyMap[37] = null;
+    keyMap[38] = null;
+    keyMap[39] = null;
+    keyMap[40] = null;
     selectedObj[1].position.z+=-1;
   }
 }
@@ -751,31 +774,19 @@ $(document).ready(function(){
 
   setInterval(function(){
     detectKeyboardAction();
-  }, 1000/10);
+  }, 1000/9);
 
   setInterval(function(){
-    if(selectedObj[1].position.z == 0.5){
+    if(selectedObj[1] && selectedObj[1].position.z == 0.5){
       unselectObj();
     }
     moveSelectedObj(0, 0, -1);
   }, 1500/1);
 
 
-  /*$("#game-mode").on("click", function(){
-    visualMode = 1-visualMode;
-    editMode = 1-editMode;
-    clearObjsinScene();
-    selectedObj = [0, null];
-    if(visualMode){
-      $("#log-text").text("Visual Mode");
-    }else{
-      $("#log-text").text("Edit Mode");
-    }
-  });*/
-
   $(document).on("keydown keyup", function(e){
     keyMap[e.keyCode] = (e.type == "keydown");
-    console.log(e.keyCode);
+    //console.log(e.keyCode);
     if(e.keyCode != 116 && e.keyCode != 123){
       e.preventDefault();
     }
