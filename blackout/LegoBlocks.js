@@ -12,7 +12,7 @@ var totalDiffObj =          4;
 var numUnconsideredObjs =   2;
 var depthLimit =           10;
 var borderLimit = {"left": 0.0, "right": 5.0, "up": 5.0, "down": 0.0}
-
+var movAllow = {"left": 1, "right": 1, "up": 1, "down": 1, "top": 1, "bottom": 1}
 var collidableList       = [];
 
 function init() {
@@ -31,7 +31,7 @@ function init() {
 
 	//camera = new THREE.OrthographicCamera( -10.0, 10.0, 10.0, -10.0, -10.0, 10.0 );
   //PerpectiveCamera(fov, aspect, near, far)
-	camera = new THREE.PerspectiveCamera( 60, 1.09, 0.01, 1000.0 );
+	camera = new THREE.PerspectiveCamera( 60, 1.09, 0.01, 14.0 );
 
   camera.position.x = 2.5;
   camera.position.y = 2.5;
@@ -63,11 +63,7 @@ function init() {
   //Create FloorLimit Wall
   createWall(tetrisWall, "z", [0.0, 0.0, 0.0]);
 
-  console.log(tetrisWall.children);
-
   collidableList.push(tetrisWall.children);
-
-  console.log(collidableList[0].children);
 
   scene.add(tetrisWall);
 
@@ -116,29 +112,86 @@ function activateAnimation(){
 
 function checkColision(){
 
+  var decimalPlaces = 12;
   var originPoint = selectedObj[1].position.clone();
+
   clearText();
 
-  var colCounter = 0;
+  //selectedObj[1].children[0] = Obj (Mesh)
 
-  for (var vIndex = 0; vIndex < selectedObj[1].children[0].geometry.vertices.length; vIndex++){
-    var befVertex = selectedObj[1].children[0].geometry.vertices[vIndex].clone();
-    var afterVertex = befVertex.applyMatrix4( selectedObj[1].matrix );
-    var directionVector = afterVertex.sub( selectedObj[1].position );
+  //for (var vIndex = 0; vIndex < selectedObj[1].children[0].geometry.vertices.length; vIndex++){
 
+    //var befVertex = selectedObj[1].children[0].geometry.vertices[vIndex].clone();
+    //var afterVertex = befVertex.applyMatrix4( selectedObj[1].matrix );
+    //var directionVector = afterVertex.sub( selectedObj[1].position );
+
+    var distance = 0.6;
+    dirArr = [
+      new THREE.Vector3(-distance, 0.0, 0.0),
+      new THREE.Vector3(distance, 0.0, 0.0),
+      new THREE.Vector3(0.0, -distance, 0.0),
+      new THREE.Vector3(0.0, distance, 0.0),
+      new THREE.Vector3(0.0, 0.0, -distance),
+      new THREE.Vector3(0.0, 0.0, distance)
+    ];
+
+    //directionVector = new THREE.Vector3( -1, 0, 0);
+  for( var i=0; i<dirArr.length; i++ ){
+
+    var directionVector = dirArr[i].clone();
+
+    //THREE.ArrowHelper( dir, origin, length, hex );
+    //scene.add( new THREE.ArrowHelper(directionVector, originPoint, 4, 0xff0000));
     var ray = new THREE.Raycaster( originPoint, directionVector.clone().normalize() );
 
     var collisionResults = ray.intersectObjects( collidableList[0] );
 
-    if( collisionResults.length > 0 && collisionResults[0].distance < directionVector.length() ){
-//      console.log("HITO!");
-      colCounter ++;
+    if( collisionResults.length > 0 && collisionResults[0].distance.toFixed(decimalPlaces) < directionVector.length().toFixed(decimalPlaces) ){
+      //for (var i=0; i< collisionResults.length; i++){}
+      collisionResults[0].object.material.color.set( 0xff0000 );
+
+      appendText(" HIT! "+ checkHitDirection(i));
+      console.log( collisionResults[0].distance, "<", directionVector.length() );
     }
   }
 
-  if (colCounter > 4){
+  /*if (colCounter > 4){
     appendText(" HITO! ");
+  }*/
+}
+
+function checkHitDirection(index){
+
+  switch(index){
+    //left
+    case 0:
+      movAllow.left = 0;
+      return "letf";
+    //right
+    case 1:
+      movAllow.right = 0;
+      return "right";
+    //down
+    case 2:
+      movAllow.down = 0;
+      return "down";
+    //up
+    case 3:
+      movAllow.up = 0;
+      return "up";
+    //bottom
+    case 4:
+      movAllow.bottom = 0;
+      return "bottom";
+    //top
+    case 5:
+      movAllow.top = 0;
+      return "top";
   }
+}
+
+function resetMovAllow(){
+  movAllow = {"left": 1, "right": 1, "up": 1, "down": 1, "top": 1, "bottom": 1}
 }
 
 function createWall(tetrisWall, chrDirection, arrTransl){
@@ -206,7 +259,7 @@ function createWall(tetrisWall, chrDirection, arrTransl){
             new THREE.Face3(0, 1, 2),
             new THREE.Face3(1, 2, 3)
         );
-        triMaterial = new THREE.MeshBasicMaterial({color: 0x0000ff, wireframe: true}); 
+        triMaterial = new THREE.MeshBasicMaterial({color: 0x0000ff, wireframe: true});
 
         Triangle = new THREE.Mesh(triGeometry, triMaterial);
         tetrisWall.add(Triangle);
@@ -451,53 +504,33 @@ function spawnObjinCenter(){
 }
 
 function addObjinScene(numBlock){
+
+  var group = new THREE.Object3D();
+  /*
+  var axis =  new THREE.AxisHelper(0.45);
+  axis.visible = false;
+  group.add(axis);
+  */
+
   switch(numBlock){
     case 0:
       var Obj = new LegoBlock0();
-      var group = new THREE.Object3D();
-      var axis =  new THREE.AxisHelper(0.45);
-      axis.visible = false;
       group.add(Obj.Mesh);
-      group.add(axis);
-      group.bdLimit = {
-        "x": {"min": group.position.x-0.5, "max": group.position.x+2.5},
-        "y": {"min": group.position.y-0.5, "max": group.position.y+0.5},
-        "z": {"min": group.position.z-0.5, "max": group.position.z+0.5}
-      }
-      group.updateLimits = function(){
-        this.bdLimit = {
-          "x": {"min": group.position.x-0.5, "max": group.position.x+2.5},
-          "y": {"min": group.position.y-0.5, "max": group.position.y+0.5},
-          "z": {"min": group.position.z-0.5, "max": group.position.z+1.5}
-        }
-      }
       scene.add(group);
       break;
     case 1:
       var Obj = new LegoBlock1();
-      var group = new THREE.Object3D();
-      var axis =  new THREE.AxisHelper(0.45);
-      axis.visible = false;
       group.add(Obj.Mesh);
-      group.add(axis);
       scene.add(group);
       break;
     case 2:
       var Obj = new LegoBlock2();
-      var group = new THREE.Object3D();
-      var axis =  new THREE.AxisHelper(0.45);
-      axis.visible = false;
       group.add(Obj.Mesh);
-      group.add(axis);
       scene.add(group);
       break;
     case 3:
       var Obj = new LegoBlock3();
-      var group = new THREE.Object3D();
-      var axis =  new THREE.AxisHelper(0.45);
-      axis.visible = false;
       group.add(Obj.Mesh);
-      group.add(axis);
       scene.add(group);
       break;
   }
@@ -511,8 +544,7 @@ function addObjinScene(numBlock){
   group.applyMatrix(m);
   group.updateMatrix();
 
-  group.updateLimits();
-  console.log(group.position, group.bdLimit);
+  //console.log(group.position, group.bdLimit);
 
   /*m.identity();
   m.makeTranslation(0.3, 0, 0);
@@ -524,9 +556,10 @@ function doSelectObjinScene(index){
   //[0] = PerpectiveCamera  // [1] = tetrisWall
   if(scene.children.length > 2){
     changeOpacityByIndexSceneObj(index, 0.4);
+
     //make axisHelper visible
     //scene.children[index] = group  | scene.children[index].children[1] = axisHelper
-    scene.children[index].children[1].visible = true;
+    //scene.children[index].children[1].visible = true;
 
     //update the current pos and next pos for the obj
     selectedObj = [index, scene.children[index]];
@@ -564,9 +597,9 @@ function changeOpacityByIndexSceneObj(index, val){
   }
   //value = 1.0, then the application is making all the faces visible with no transparency.
   //then its not a selected object anymore. hide the axisHelper with it too.
-  if(val == 1){
+  /*if(val == 1){
     scene.children[index].children[1].visible = false;
-  }
+  }*/
 }
 
 //except for camera. Clear all objects in the scene
@@ -586,8 +619,8 @@ function getCurrPosfromSelectedObj(){
     }
 }
 
-function isPossibletoGo(direction){
-  return 1;
+//deprecable
+/*function isPossibletoGo(direction){
   if(direction == "right"){
     if(selectedObj[1].bdLimit.x.max + 1.0 > borderLimit.right){
       return 0;
@@ -609,7 +642,7 @@ function isPossibletoGo(direction){
     }
     return 1;
   }
-}
+}*/
 
 function detectKeyboardAction(){
   if(selectedObj[1] != null){
@@ -618,69 +651,44 @@ function detectKeyboardAction(){
     //ctrl isnt pressed
     if(keyMap[17] == null || !keyMap[17]){
       //right
-      if((keyMap[39])&&(isPossibletoGo("right"))){
+      if((keyMap[39])&& movAllow.right){
         m.makeTranslation(1.0, 0.0, 0.0);
         selectedObj[1].applyMatrix(m);
         selectedObj[1].updateMatrix();
-        selectedObj[1].updateLimits();
+        //block movemented, reset the "liberty" of movements
+        resetMovAllow();
       }
       //left
-      if(keyMap[37] && isPossibletoGo("left")){
+      else if(keyMap[37] && movAllow.left){
         m.makeTranslation(-1.0, 0.0, 0.0);
         selectedObj[1].applyMatrix(m);
         selectedObj[1].updateMatrix();
-        selectedObj[1].updateLimits();
+        //block movemented, reset the "liberty" of movements
+        resetMovAllow();
       }
       //up
-      if(keyMap[38] && isPossibletoGo("up")){
+      else if(keyMap[38] && movAllow.up){
         //selectedObj[1].matrix.copy(m);
         m.makeTranslation(0.0, 1.0, 0.0);
         selectedObj[1].applyMatrix(m);
         selectedObj[1].updateMatrix();
-        selectedObj[1].updateLimits();
+        //block movemented, reset the "liberty" of movements
+        resetMovAllow();
       }
       //down
-      if(keyMap[40] && isPossibletoGo("down")){
+      else if(keyMap[40] && movAllow.down){
         //save the previous pos
         prevPos = selectedObj[1].position;
         m.makeTranslation(0.0, -1.0, 0.0);
         selectedObj[1].applyMatrix(m);
         selectedObj[1].updateMatrix();
-        selectedObj[1].updateLimits();
+        //block movemented, reset the "liberty" of movements
+        resetMovAllow();
       }
     }
 
-    //Rotation Y (ctrl + left)
-    if(keyMap[17] && keyMap[37]){
-      //save the amount value for translation back and further
-      var prevPos = getCurrPosfromSelectedObj();
-
-      m.makeTranslation(-prevPos.x, -prevPos.y, -prevPos.z);
-      selectedObj[1].applyMatrix(m);
-      selectedObj[1].updateMatrix();
-
-      m.makeRotationY(-Math.PI/2);
-      selectedObj[1].applyMatrix(m);
-      selectedObj[1].updateMatrix();
-
-      m.makeTranslation(prevPos.x, prevPos.y, prevPos.z);
-      selectedObj[1].applyMatrix(m);
-      selectedObj[1].updateMatrix();
-
-      //update the border limits
-      var aux = selectedObj[1].bdLimit.z;
-
-      selectedObj[1].bdLimit.z.max = selectedObj[1].bdLimit.x.max;
-      selectedObj[1].bdLimit.z.min = selectedObj[1].bdLimit.x.min;
-
-      selectedObj[1].bdLimit.x.max = aux.max;
-      selectedObj[1].bdLimit.x.min = aux.min;
-
-      aux = null;
-    }
-
-    //Rotation Y (ctrl + right)
-    if(keyMap[17] && keyMap[39]){
+    //Rotation Z (a)
+    if( keyMap[65] ){
       //this will save the amoount of translation is necessary to put the object back there or further there
       var prevPos = getCurrPosfromSelectedObj();
 
@@ -688,7 +696,7 @@ function detectKeyboardAction(){
       selectedObj[1].applyMatrix(m);
       selectedObj[1].updateMatrix();
 
-      m.makeRotationY(Math.PI/2);
+      m.makeRotationZ(Math.PI/2);
       selectedObj[1].applyMatrix(m);
       selectedObj[1].updateMatrix();
 
@@ -697,32 +705,15 @@ function detectKeyboardAction(){
       selectedObj[1].updateMatrix();
     }
 
-    //Rotation X (ctrl + up)
-    if(keyMap[17] && keyMap[38]){
+    //Rotation Z (d)
+    if( keyMap[68] ){
       var prevPos = getCurrPosfromSelectedObj();
 
       m.makeTranslation(-prevPos.x, -prevPos.y, -prevPos.z);
       selectedObj[1].applyMatrix(m);
       selectedObj[1].updateMatrix();
 
-      m.makeRotationX(-Math.PI/2);
-      selectedObj[1].applyMatrix(m);
-      selectedObj[1].updateMatrix();
-
-      m.makeTranslation(prevPos.x, prevPos.y, prevPos.z);
-      selectedObj[1].applyMatrix(m);
-      selectedObj[1].updateMatrix();
-    }
-
-    //Rotation X (ctrl + down)
-    if(keyMap[17] && keyMap[40]){
-      var prevPos = getCurrPosfromSelectedObj();
-
-      m.makeTranslation(-prevPos.x, -prevPos.y, -prevPos.z);
-      selectedObj[1].applyMatrix(m);
-      selectedObj[1].updateMatrix();
-
-      m.makeRotationX(Math.PI/2);
+      m.makeRotationZ(-Math.PI/2);
       selectedObj[1].applyMatrix(m);
       selectedObj[1].updateMatrix();
 
@@ -741,14 +732,16 @@ function detectKeyboardAction(){
 
 }
 
-function moveSelectedObj(){
+function moveSelectedObj(x, y, z){
   if(selectedObj[1] != null){
     //the line below is a trick to stop movements from player and execute the function in next
     keyMap[37] = null;
     keyMap[38] = null;
     keyMap[39] = null;
     keyMap[40] = null;
-    selectedObj[1].position.z+=-1;
+    selectedObj[1].position.x+=x;
+    selectedObj[1].position.y+=y;
+    selectedObj[1].position.z+=z;
   }
 }
 
@@ -764,21 +757,17 @@ $(document).ready(function(){
       }
    }
 
-  /*setInterval(function(){
-    if(!blockMoving_f && !checkObjinCenter()){
-      spawnObjinCenter();
-    }
-  }, 3000);*/
-
   setInterval(function(){
     detectKeyboardAction();
   }, 1000/9);
 
   setInterval(function(){
-    if(selectedObj[1] && selectedObj[1].position.z == 0.5){
+    if(selectedObj[1] && !movAllow.bottom){ //&& selectedObj[1].position.z == 0.5){
       unselectObj();
+      resetMovAllow();
     }
-    moveSelectedObj(0, 0, -1);
+    if(movAllow.bottom)
+      moveSelectedObj(0, 0, -1);
   }, 1500/1);
 
 
