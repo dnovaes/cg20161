@@ -1,5 +1,5 @@
 
-var stats, camera, scene, renderer;
+var stats, frontCamera, sideCamera, scene, renderer;
 var startPos =           null;
 var blockMoving_f =         0;
 var selectedObj =   [2, null];
@@ -29,20 +29,47 @@ function init() {
 
   aspectRatio = window.innerWidth/window.innerHeight;
 
-	//camera = new THREE.OrthographicCamera( -10.0, 10.0, 10.0, -10.0, -10.0, 10.0 );
   //PerpectiveCamera(fov, aspect, near, far)
-	camera = new THREE.PerspectiveCamera( 60, 1.09, 0.01, 14.0 );
+	frontCamera = new THREE.PerspectiveCamera( 60, 1.09, 0.01, 140.0 );
 
-  camera.position.x = 2.5;
-  camera.position.y = 2.5;
-  camera.position.z = 14;
-  camera.updateProjectionMatrix();
-	scene.add( camera );
+  frontCamera.position.x = 2.5;
+  frontCamera.position.y = 2.5;
+  frontCamera.position.z = 14;
+  //camera.updateProjectionMatrix();
+	scene.add( frontCamera );
+
+
+  sideCamera = new THREE.OrthographicCamera( -2, 7, -10, 10, -100, 100);
+
+  sideCamera.position.y = 9.5;
+
+  var m = new THREE.Matrix4();
+  var prevPos = {"x": sideCamera.position.x, "y": sideCamera.position.y, "z": sideCamera.position.z}
+
+  m.identity();
+  m.makeTranslation(-prevPos.x, -prevPos.y, -prevPos.z);
+  sideCamera.applyMatrix(m);
+  sideCamera.updateMatrix();
+
+  m.makeRotationX(-90*Math.PI/180);
+  sideCamera.applyMatrix(m);
+  sideCamera.updateMatrix();
+
+  m.makeTranslation( prevPos.x, prevPos.y, prevPos.z);
+  sideCamera.applyMatrix(m);
+  sideCamera.updateMatrix();
+
+console.log(sideCamera.position, prevPos);
+
+  //sideCamera.lookAt( new THREE.Vector3( 0, sideCamera.position.y, sideCamera.position.z) );
+  scene.add( sideCamera );
+
 
 	stats = new Stats();
 	document.getElementById('WebGL-output').appendChild(stats.domElement);
 
-  /*var Axis = new THREE.AxisHelper(0.8);
+  /*var Axis = new THREE.AxisHelper(4);
+  Axis.position.y = 6;
   scene.add(Axis);*/
 
   var tetrisWall = new THREE.Object3D();
@@ -89,13 +116,13 @@ function init() {
 
   activateAnimation();
 	//renderer.clear();
-	//renderer.render(scene, camera);
+	//renderer.render(scene, frontCamera);
 };
 
 function doMoveCameraToPos(posVector3){
-	camera.position.x =  posVector3.x;
-	camera.position.y =  posVector3.y;
-	camera.position.z =  posVector3.z;
+	frontCamera.position.x =  posVector3.x;
+	frontCamera.position.y =  posVector3.y;
+	frontCamera.position.z =  posVector3.z;
 }
 
 function activateAnimation(){
@@ -104,7 +131,16 @@ function activateAnimation(){
 
 	stats.begin();
 	renderer.clear();
-  renderer.render(scene, camera);
+  renderer.setViewport( window.innerWidth*0.1, 0, window.innerWidth*0.87, window.innerHeight*0.67 );
+  renderer.setScissor( window.innerWidth*0.1, 0, window.innerWidth*0.9, window.innerHeight );
+  renderer.setScissorTest( true );
+  renderer.render(scene, frontCamera);
+
+  renderer.setViewport( 0, 0, window.innerWidth*0.1, window.innerHeight);
+  renderer.setScissor( 0, 0, window.innerWidth*0.1, window.innerHeight);
+  renderer.setScissorTest( true );
+  renderer.render(scene, sideCamera);
+
   if(selectedObj[1] != null)
     checkColision();
 	stats.end();
@@ -140,7 +176,7 @@ function checkColision(){
 
     var directionVector = dirArr[i].clone();
 
-    //THREE.ArrowHelper( dir, origin, length, hex );
+    //THREE.ArrowHelper( direction, VectorOrigin, length, hex );
     //scene.add( new THREE.ArrowHelper(directionVector, originPoint, 4, 0xff0000));
     var ray = new THREE.Raycaster( originPoint, directionVector.clone().normalize() );
 
@@ -511,39 +547,53 @@ function addObjinScene(numBlock){
   axis.visible = false;
   group.add(axis);
   */
+  if( numBlock >=0 && numBlock<4){
 
-  switch(numBlock){
-    case 0:
-      var Obj = new LegoBlock0();
-      group.add(Obj.Mesh);
-      scene.add(group);
-      break;
-    case 1:
-      var Obj = new LegoBlock1();
-      group.add(Obj.Mesh);
-      scene.add(group);
-      break;
-    case 2:
-      var Obj = new LegoBlock2();
-      group.add(Obj.Mesh);
-      scene.add(group);
-      break;
-    case 3:
-      var Obj = new LegoBlock3();
-      group.add(Obj.Mesh);
-      scene.add(group);
-      break;
+    var distance = 0.6;
+    dirArr = [
+      new THREE.Vector3(-distance, 0.0, 0.0),
+      new THREE.Vector3(distance, 0.0, 0.0),
+      new THREE.Vector3(0.0, -distance, 0.0),
+      new THREE.Vector3(0.0, distance, 0.0),
+      new THREE.Vector3(0.0, 0.0, -distance),
+      new THREE.Vector3(0.0, 0.0, distance)
+    ];
+
+    switch(numBlock){
+      case 0:
+        var Obj = new LegoBlock0();
+        break;
+      case 1:
+        var Obj = new LegoBlock1();
+        break;
+      case 2:
+        var Obj = new LegoBlock2();
+        break;
+      case 3:
+        var Obj = new LegoBlock3();
+        break;
+    }
+
+    group.add(Obj.Mesh);
+
+    var originPoint = Obj.Mesh.position.clone();
+    for (var i=0; i<dirArr.length; i++){
+      group.add( new THREE.ArrowHelper(dirArr[i], originPoint, 4, 0xff0000, .05, .05));
+    }
+    scene.add(group);
+
+    //scale the obj and put at the startPos of the game
+    var m = new THREE.Matrix4();
+    m.identity();
+    m.makeScale(5.0, 5.0, 5.0);
+    group.applyMatrix(m);
+    group.updateMatrix();
+
+    m.makeTranslation(startPos.x, startPos.y, (startPos.z-1));
+    group.applyMatrix(m);
+    group.updateMatrix();
+
   }
-  var m = new THREE.Matrix4();
-  m.identity();
-  m.makeScale(5.0, 5.0, 5.0);
-  group.applyMatrix(m);
-  group.updateMatrix();
-
-  m.makeTranslation(startPos.x, startPos.y, (startPos.z-1));
-  group.applyMatrix(m);
-  group.updateMatrix();
-
   //console.log(group.position, group.bdLimit);
 
   /*m.identity();
@@ -687,7 +737,8 @@ function detectKeyboardAction(){
       }
     }
 
-    //Rotation Z (a)
+    //Rotation Z
+    //key: a (to left)
     if( keyMap[65] ){
       //this will save the amoount of translation is necessary to put the object back there or further there
       var prevPos = getCurrPosfromSelectedObj();
@@ -705,7 +756,8 @@ function detectKeyboardAction(){
       selectedObj[1].updateMatrix();
     }
 
-    //Rotation Z (d)
+    //Rotation Z
+    //key: d (to right)
     if( keyMap[68] ){
       var prevPos = getCurrPosfromSelectedObj();
 
@@ -720,6 +772,15 @@ function detectKeyboardAction(){
       m.makeTranslation(prevPos.x, prevPos.y, prevPos.z);
       selectedObj[1].applyMatrix(m);
       selectedObj[1].updateMatrix();
+    }
+
+    if( keyMap[32] ){
+      console.log("space pressed");
+      console.log( scene.position);
+      frontCamera.position.x = 30.0;
+      frontCamera.position.y = 4.5;
+      frontCamera.position.z = 14.0;
+      frontCamera.lookAt( new THREE.Vector3( 0, 0, frontCamera.position.z) );
     }
 
   }

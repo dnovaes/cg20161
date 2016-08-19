@@ -9,31 +9,31 @@ function clearText(){
 function initGUI() {
 
 	controls = new function () {
-		this.fov 			= camera.fov;
-		this.camPosX		= camera.position.x;
-		this.camPosY		= camera.position.y;
-		this.camPosZ		= camera.position.z;
+		this.fov 			= frontCamera.fov;
+		this.camPosX		= frontCamera.position.x;
+		this.camPosY		= frontCamera.position.y;
+		this.camPosZ		= frontCamera.position.z;
 		}
 
 	var gui = new dat.GUI();
 
 	gui.add(controls, 'fov', -10.0, 100.0).onChange(function (value) {
-		camera.fov = controls.fov;
-		camera.updateProjectionMatrix();
+		frontCamera.fov = controls.fov;
+		frontCamera.updateProjectionMatrix();
 		});
 
 	var fCamPos = gui.addFolder('CameraPos');
 	fCamPos.add( controls, 'camPosX', -40.0, 40.0).onChange(function (value) {
-		camera.position.x = controls.camPosX;
-		camera.updateProjectionMatrix();
+		frontCamera.position.x = controls.camPosX;
+		frontCamera.updateProjectionMatrix();
 		});
 	fCamPos.add( controls, 'camPosY', -40.0, 40.0).onChange(function (value) {
-		camera.position.y = controls.camPosY;
-		camera.updateProjectionMatrix();
+		frontCamera.position.y = controls.camPosY;
+		frontCamera.updateProjectionMatrix();
 		});
 	fCamPos.add( controls, 'camPosZ', -40.0, 40.0).onChange(function (value) {
-		camera.position.z = controls.camPosZ;
-		camera.updateProjectionMatrix();
+		frontCamera.position.z = controls.camPosZ;
+		frontCamera.updateProjectionMatrix();
 		});
 	fCamPos.close();
 };
