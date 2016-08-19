@@ -147,7 +147,7 @@ function activateAnimation(){
 }
 
 function checkColision(){
-
+  //number of decimalPlaces at the colision Numbers
   var decimalPlaces = 12;
   var originPoint = selectedObj[1].position.clone();
 
@@ -155,23 +155,8 @@ function checkColision(){
 
   //selectedObj[1].children[0] = Obj (Mesh)
 
-  //for (var vIndex = 0; vIndex < selectedObj[1].children[0].geometry.vertices.length; vIndex++){
+  var dirArr = selectedObj[1].children[0].dirArr;
 
-    //var befVertex = selectedObj[1].children[0].geometry.vertices[vIndex].clone();
-    //var afterVertex = befVertex.applyMatrix4( selectedObj[1].matrix );
-    //var directionVector = afterVertex.sub( selectedObj[1].position );
-
-    var distance = 0.6;
-    dirArr = [
-      new THREE.Vector3(-distance, 0.0, 0.0),
-      new THREE.Vector3(distance, 0.0, 0.0),
-      new THREE.Vector3(0.0, -distance, 0.0),
-      new THREE.Vector3(0.0, distance, 0.0),
-      new THREE.Vector3(0.0, 0.0, -distance),
-      new THREE.Vector3(0.0, 0.0, distance)
-    ];
-
-    //directionVector = new THREE.Vector3( -1, 0, 0);
   for( var i=0; i<dirArr.length; i++ ){
 
     var directionVector = dirArr[i].clone();
@@ -190,10 +175,6 @@ function checkColision(){
       console.log( collisionResults[0].distance, "<", directionVector.length() );
     }
   }
-
-  /*if (colCounter > 4){
-    appendText(" HITO! ");
-  }*/
 }
 
 function checkHitDirection(index){
@@ -331,7 +312,14 @@ function LegoBlock0(){
 
 	this.Mesh = this.createVertices();
 	this.Vertices = this.Mesh.geometry.vertices;
-
+  this.Mesh.distance = 0.6;
+  this.Mesh.dirArr = [
+    new THREE.Vector3( -this.Mesh.distance, 0.0, 0.0),
+    new THREE.Vector3( this.Mesh.distance+2, 0.0, 0.0),
+    new THREE.Vector3( 0.0, -this.Mesh.distance, 0.0),
+    new THREE.Vector3( 0.0, this.Mesh.distance, 0.0),
+    new THREE.Vector3( 0.0, 0.0, -this.Mesh.distance)
+  ]
 	/*Meshblock2 = this.Mesh.clone();
 	Meshblock2.translateX(1);
 	scene.add(Meshblock2);
@@ -555,8 +543,8 @@ function addObjinScene(numBlock){
       new THREE.Vector3(distance, 0.0, 0.0),
       new THREE.Vector3(0.0, -distance, 0.0),
       new THREE.Vector3(0.0, distance, 0.0),
-      new THREE.Vector3(0.0, 0.0, -distance),
-      new THREE.Vector3(0.0, 0.0, distance)
+      new THREE.Vector3(0.0, 0.0, -distance)
+      //new THREE.Vector3(0.0, 0.0, distance)
     ];
 
     switch(numBlock){
@@ -576,10 +564,13 @@ function addObjinScene(numBlock){
 
     group.add(Obj.Mesh);
 
+    subGroup = new THREE.Object3D();
     var originPoint = Obj.Mesh.position.clone();
     for (var i=0; i<dirArr.length; i++){
-      group.add( new THREE.ArrowHelper(dirArr[i], originPoint, 4, 0xff0000, .05, .05));
+      subGroup.add( new THREE.ArrowHelper(dirArr[i], originPoint, 4, 0xff0000, .05, .05));
+      subGroup.children[i].visible = false;
     }
+    group.add(subGroup);
     scene.add(group);
 
     //scale the obj and put at the startPos of the game
@@ -611,6 +602,12 @@ function doSelectObjinScene(index){
     //scene.children[index] = group  | scene.children[index].children[1] = axisHelper
     //scene.children[index].children[1].visible = true;
 
+    //make arrowHelper visible
+    console.log(scene.children[index].children[1]);
+    for(var j=0; j<scene.children[index].children[1].children.length; j++){
+      scene.children[index].children[1].children[j].visible = true;
+    }
+
     //update the current pos and next pos for the obj
     selectedObj = [index, scene.children[index]];
     currIndex = index;
@@ -622,9 +619,12 @@ function doSelectObjinScene(index){
 function unselectObj(){
   if(selectedObj[1] != null){
     changeOpacityByIndexSceneObj(selectedObj[0], 1.0);
+
     spawnObjinCenter();
     currIndex = scene.children.length-1;
 //    selectedObj = [currIndex, null];
+
+    //select next ?
     doSelectObjinScene(currIndex);
   }
 }
@@ -647,9 +647,10 @@ function changeOpacityByIndexSceneObj(index, val){
   }
   //value = 1.0, then the application is making all the faces visible with no transparency.
   //then its not a selected object anymore. hide the axisHelper with it too.
-  /*if(val == 1){
+  if(val == 1){
     scene.children[index].children[1].visible = false;
-  }*/
+    //make arrowHelper or axisHelper invis
+  }
 }
 
 //except for camera. Clear all objects in the scene
