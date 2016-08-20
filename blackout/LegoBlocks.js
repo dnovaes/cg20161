@@ -171,8 +171,10 @@ function checkColision(){
       //for (var i=0; i< collisionResults.length; i++){}
       collisionResults[0].object.material.color.set( 0xff0000 );
 
+      //print hit direction and disable the hit at the currented colision direction
       appendText(" HIT! "+ checkHitDirection(i));
-      console.log( collisionResults[0].distance, "<", directionVector.length() );
+      //*
+      //console.log( collisionResults[0].distance, "<", directionVector.length() );
     }
   }
 }
@@ -183,7 +185,7 @@ function checkHitDirection(index){
     //left
     case 0:
       movAllow.left = 0;
-      return "letf";
+      return "left";
     //right
     case 1:
       movAllow.right = 0;
@@ -362,6 +364,14 @@ function LegoBlock1(){
 	}
 
 	this.Mesh = this.createVertices();
+  this.Mesh.distance = 0.6;
+  this.Mesh.dirArr = [
+    new THREE.Vector3( -Math.abs(this.Mesh.distance+1), 0.0, 0.0),
+    new THREE.Vector3( this.Mesh.distance+1, 0.0, 0.0),
+    new THREE.Vector3( 0.0, -this.Mesh.distance, 0.0),
+    new THREE.Vector3( 0.0, this.Mesh.distance, 0.0),
+    new THREE.Vector3( 0.0, 0.0, -this.Mesh.distance)
+  ]
 }
 
 function LegoBlock2(){
@@ -389,6 +399,14 @@ function LegoBlock2(){
 	}
 
 	this.Mesh = this.createVertices();
+  this.Mesh.distance = 0.6;
+  this.Mesh.dirArr = [
+    new THREE.Vector3( -Math.abs(this.Mesh.distance+1), 0.0, 0.0),
+    new THREE.Vector3( this.Mesh.distance, 0.0, 0.0),
+    new THREE.Vector3( 0.0, -this.Mesh.distance, 0.0),
+    new THREE.Vector3( 0.0, this.Mesh.distance, 0.0),
+    new THREE.Vector3( 0.0, 0.0, -Math.abs(this.Mesh.distance+1))
+  ]
 }
 
 function LegoBlock3(){
@@ -417,6 +435,42 @@ function LegoBlock3(){
 	}
 
 	this.Mesh = this.createVertices();
+}
+
+function rotateDirectionArray(cmdDir){
+  var distance = selectedObj[1].children[0].distance;
+  var xNeg = null;
+/*
+  dirArr = [
+      new THREE.Vector3(-distance, 0.0, 0.0), // [0] -x
+      new THREE.Vector3(distance, 0.0, 0.0),  // [1] x
+      new THREE.Vector3(0.0, -distance, 0.0), // [2] -y
+      new THREE.Vector3(0.0, distance, 0.0),  // [3] y
+      new THREE.Vector3(0.0, 0.0, -distance)
+   ];
+*/
+
+  //counter clockwise
+  if(cmdDir == -1){
+    xNeg = selectedObj[1].children[0].dirArr[0].x;
+
+    selectedObj[1].children[0].dirArr[0] = new THREE.Vector3(-Math.abs(selectedObj[1].children[0].dirArr[3].y), 0, 0);
+    selectedObj[1].children[0].dirArr[3] = new THREE.Vector3(0, Math.abs(selectedObj[1].children[0].dirArr[1].x), 0);
+    selectedObj[1].children[0].dirArr[1] = new THREE.Vector3(Math.abs(selectedObj[1].children[0].dirArr[2].y), 0, 0);
+    selectedObj[1].children[0].dirArr[2] = new THREE.Vector3(0, -Math.abs(xNeg), 0);
+  }
+  //clock wise rotation
+  else if(cmdDir == 1){
+
+    xNeg = selectedObj[1].children[0].dirArr[0].x;
+
+    selectedObj[1].children[0].dirArr[0] = new THREE.Vector3(-Math.abs(selectedObj[1].children[0].dirArr[2].y), 0, 0);
+    selectedObj[1].children[0].dirArr[2] = new THREE.Vector3(0, -Math.abs(selectedObj[1].children[0].dirArr[1].x), 0);
+    selectedObj[1].children[0].dirArr[1] = new THREE.Vector3(Math.abs(selectedObj[1].children[0].dirArr[3].y), 0, 0);
+    selectedObj[1].children[0].dirArr[3] = new THREE.Vector3(0, Math.abs(xNeg), 0);
+  }
+  //console.log(selectedObj[1].children[0].dirArr);
+
 }
 
 function addBlockGeometrysNextto(triangleGeometry, TransCoordObj, ArrArg){
@@ -518,8 +572,8 @@ function checkObjinCenter(){
 function spawnObjinCenter(){
 
   //Add a random block number
-  var num = Math.floor(Math.random()*(totalDiffObj-1));
-  num = 0;
+  var num = Math.ceil(Math.random()*(totalDiffObj-1));
+  console.log("Block number: "+num);
   addObjinScene(num);
 
   console.log("Added object.\n");
@@ -603,7 +657,6 @@ function doSelectObjinScene(index){
     //scene.children[index].children[1].visible = true;
 
     //make arrowHelper visible
-    console.log(scene.children[index].children[1]);
     for(var j=0; j<scene.children[index].children[1].children.length; j++){
       scene.children[index].children[1].children[j].visible = true;
     }
@@ -755,6 +808,10 @@ function detectKeyboardAction(){
       m.makeTranslation(prevPos.x, prevPos.y, prevPos.z);
       selectedObj[1].applyMatrix(m);
       selectedObj[1].updateMatrix();
+
+      //-1 means counter-clockwise
+      rotateDirectionArray(-1);
+      resetMovAllow();
     }
 
     //Rotation Z
@@ -773,6 +830,10 @@ function detectKeyboardAction(){
       m.makeTranslation(prevPos.x, prevPos.y, prevPos.z);
       selectedObj[1].applyMatrix(m);
       selectedObj[1].updateMatrix();
+
+      //1  means clockwise
+      rotateDirectionArray(1);
+      resetMovAllow();
     }
 
     if( keyMap[32] ){
@@ -790,6 +851,8 @@ function detectKeyboardAction(){
   if(keyMap[13]){
     spawnObjinCenter();
     doSelectObjinScene(scene.children.length-1);
+    console.log(selectedObj[1].children[0].dirArr);
+    keyMap[13] = null;
   }
 
 }

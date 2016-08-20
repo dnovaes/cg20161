@@ -328,6 +328,8 @@ function LegoBlock7(){
 	this.Vertices = this.Mesh.geometry.vertices;
 }
 
+
+
 function addBlockGeometrysNextto(triangleGeometry, TransCoordObj, ArrArg){
 	//TransCoordObj = an object with values of translate in x, y and z.
 	//TransCoordObj = {x: value, y: value, z: value}
