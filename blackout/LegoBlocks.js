@@ -300,16 +300,24 @@ function LegoBlock0(){
 
 		var boxMaterials = [];
 		boxMaterials.push(
-			new THREE.MeshBasicMaterial({color:0xFF0000, side:THREE.DoubleSide}),
-			new THREE.MeshBasicMaterial({color:0x5BDF14, side:THREE.DoubleSide}),
 			new THREE.MeshBasicMaterial({color:0x0000FF, side:THREE.DoubleSide}),
+			new THREE.MeshBasicMaterial({color:0x5BDF14, side:THREE.DoubleSide}),
+			new THREE.MeshBasicMaterial({color:0xFF0000, side:THREE.DoubleSide}),
 			new THREE.MeshBasicMaterial({color:0xF0C58D, side:THREE.DoubleSide}),
 			new THREE.MeshBasicMaterial({color:0xE86B9C, side:THREE.DoubleSide}),
 			new THREE.MeshBasicMaterial({color:0xFFFFFF, side:THREE.DoubleSide})
 		);
 		var triangleMaterial = new THREE.MeshFaceMaterial(boxMaterials);
 
-		return new THREE.Mesh(triangleGeometry, triangleMaterial);
+    var Mesh = new THREE.Mesh(triangleGeometry, triangleMaterial);
+
+    m = new THREE.Matrix4();
+    m.identity();
+    m.makeRotationX(90*Math.PI/180);
+    Mesh.applyMatrix(m);
+    Mesh.updateMatrix();
+
+		return Mesh;
 	}
 
 	this.Mesh = this.createVertices();
@@ -318,7 +326,7 @@ function LegoBlock0(){
   this.Mesh.dirArr = [
     new THREE.Vector3( -this.Mesh.distance, 0.0, 0.0),
     new THREE.Vector3( this.Mesh.distance+2, 0.0, 0.0),
-    new THREE.Vector3( 0.0, -this.Mesh.distance, 0.0),
+    new THREE.Vector3( 0.0, -(this.Mesh.distance+1), 0.0),
     new THREE.Vector3( 0.0, this.Mesh.distance, 0.0),
     new THREE.Vector3( 0.0, 0.0, -this.Mesh.distance)
   ]
@@ -351,24 +359,32 @@ function LegoBlock1(){
 
 		var boxMaterials = [];
 		boxMaterials.push(
-			new THREE.MeshBasicMaterial({color:0xFF0000, side:THREE.DoubleSide}),
-			new THREE.MeshBasicMaterial({color:0x5BDF14, side:THREE.DoubleSide}),
 			new THREE.MeshBasicMaterial({color:0x0000FF, side:THREE.DoubleSide}),
+			new THREE.MeshBasicMaterial({color:0x5BDF14, side:THREE.DoubleSide}),
+			new THREE.MeshBasicMaterial({color:0xFF0000, side:THREE.DoubleSide}),
 			new THREE.MeshBasicMaterial({color:0xF0C58D, side:THREE.DoubleSide}),
 			new THREE.MeshBasicMaterial({color:0xE86B9C, side:THREE.DoubleSide}),
 			new THREE.MeshBasicMaterial({color:0xFFFFFF, side:THREE.DoubleSide})
 		);
 		var triangleMaterial = new THREE.MeshFaceMaterial(boxMaterials);
 
-		return new THREE.Mesh(triangleGeometry, triangleMaterial);
+    var Mesh = new THREE.Mesh(triangleGeometry, triangleMaterial);
+
+    m = new THREE.Matrix4();
+    m.identity();
+    m.makeRotationX(90*Math.PI/180);
+    Mesh.applyMatrix(m);
+    Mesh.updateMatrix();
+
+		return Mesh;
 	}
 
 	this.Mesh = this.createVertices();
   this.Mesh.distance = 0.6;
   this.Mesh.dirArr = [
-    new THREE.Vector3( -Math.abs(this.Mesh.distance+1), 0.0, 0.0),
+    new THREE.Vector3( -(this.Mesh.distance+1), 0.0, 0.0),
     new THREE.Vector3( this.Mesh.distance+1, 0.0, 0.0),
-    new THREE.Vector3( 0.0, -this.Mesh.distance, 0.0),
+    new THREE.Vector3( 0.0, -(this.Mesh.distance+1), 0.0),
     new THREE.Vector3( 0.0, this.Mesh.distance, 0.0),
     new THREE.Vector3( 0.0, 0.0, -this.Mesh.distance)
   ]
@@ -386,29 +402,37 @@ function LegoBlock2(){
 
 		var boxMaterials = [];
 		boxMaterials.push(
-			new THREE.MeshBasicMaterial({color:0xFF0000, side:THREE.DoubleSide}),
-			new THREE.MeshBasicMaterial({color:0x5BDF14, side:THREE.DoubleSide}),
 			new THREE.MeshBasicMaterial({color:0x0000FF, side:THREE.DoubleSide}),
+			new THREE.MeshBasicMaterial({color:0x5BDF14, side:THREE.DoubleSide}),
+			new THREE.MeshBasicMaterial({color:0xFF0000, side:THREE.DoubleSide}),
 			new THREE.MeshBasicMaterial({color:0xF0C58D, side:THREE.DoubleSide}),
 			new THREE.MeshBasicMaterial({color:0xE86B9C, side:THREE.DoubleSide}),
 			new THREE.MeshBasicMaterial({color:0xFFFFFF, side:THREE.DoubleSide})
 		);
 		var triangleMaterial = new THREE.MeshFaceMaterial(boxMaterials);
 
-		return new THREE.Mesh(triangleGeometry, triangleMaterial);
+    var Mesh = new THREE.Mesh(triangleGeometry, triangleMaterial);
+
+    m = new THREE.Matrix4();
+    m.identity();
+    m.makeRotationX(90*Math.PI/180);
+    Mesh.applyMatrix(m);
+    Mesh.updateMatrix();
+
+		return Mesh;
 	}
 
 	this.Mesh = this.createVertices();
   this.Mesh.distance = 0.6;
   this.Mesh.dirArr = [
-    new THREE.Vector3( -Math.abs(this.Mesh.distance+1), 0.0, 0.0),
+    new THREE.Vector3( -(this.Mesh.distance+1), 0.0, 0.0),
     new THREE.Vector3( this.Mesh.distance, 0.0, 0.0),
     new THREE.Vector3( 0.0, -this.Mesh.distance, 0.0),
-    new THREE.Vector3( 0.0, this.Mesh.distance, 0.0),
-    new THREE.Vector3( 0.0, 0.0, -Math.abs(this.Mesh.distance+1))
+    new THREE.Vector3( 0.0, this.Mesh.distance+1, 0.0),
+    new THREE.Vector3( 0.0, 0.0, -this.Mesh.distance)
   ]
 }
-
+/*
 function LegoBlock3(){
 
 	this.createVertices = function(){
@@ -435,6 +459,51 @@ function LegoBlock3(){
 	}
 
 	this.Mesh = this.createVertices();
+}
+*/
+function LegoBlock3(){
+
+	this.createVertices = function(){
+		var triangleGeometry = new THREE.Geometry();
+
+		//ArrArg = [front, back, top, bottom, left, right]
+		addBlockGeometrysNextto(triangleGeometry, {x: 0.0, y: 0.0, z: 0.0}, [1, 1, 1, 1, 1, 1]);
+/*
+		addBlockGeometrysNextto(triangleGeometry, {x: -0.2, y: 0.0, z: 0.0}, [1, 1, 1, 1, 1, 0]);
+		addBlockGeometrysNextto(triangleGeometry, {x: 0.2, y: 0.0, z: 0.0}, [1, 1, 1, 1, 0, 1]);
+		addBlockGeometrysNextto(triangleGeometry, {x: 0.0, y: 0.0, z: 0.2}, [1, 0, 1, 1, 1, 1]);
+*/
+		var boxMaterials = [];
+		boxMaterials.push(
+			new THREE.MeshBasicMaterial({color:0x0000FF, side:THREE.DoubleSide}),
+			new THREE.MeshBasicMaterial({color:0x5BDF14, side:THREE.DoubleSide}),
+			new THREE.MeshBasicMaterial({color:0xFF0000, side:THREE.DoubleSide}),
+			new THREE.MeshBasicMaterial({color:0xF0C58D, side:THREE.DoubleSide}),
+			new THREE.MeshBasicMaterial({color:0xE86B9C, side:THREE.DoubleSide}),
+			new THREE.MeshBasicMaterial({color:0xFFFFFF, side:THREE.DoubleSide})
+		);
+		var triangleMaterial = new THREE.MeshFaceMaterial(boxMaterials);
+
+    var Mesh = new THREE.Mesh(triangleGeometry, triangleMaterial);
+
+    m = new THREE.Matrix4();
+    m.identity();
+    m.makeRotationX(90*Math.PI/180);
+    Mesh.applyMatrix(m);
+    Mesh.updateMatrix();
+
+		return Mesh;
+	}
+
+	this.Mesh = this.createVertices();
+  this.Mesh.distance = 0.6;
+  this.Mesh.dirArr = [
+    new THREE.Vector3( -this.Mesh.distance, 0.0, 0.0),
+    new THREE.Vector3( this.Mesh.distance, 0.0, 0.0),
+    new THREE.Vector3( 0.0, -this.Mesh.distance, 0.0),
+    new THREE.Vector3( 0.0, this.Mesh.distance, 0.0),
+    new THREE.Vector3( 0.0, 0.0, -this.Mesh.distance)
+  ]
 }
 
 function rotateDirectionArray(cmdDir){
@@ -572,10 +641,9 @@ function checkObjinCenter(){
 function spawnObjinCenter(){
 
   //Add a random block number
-  var num = Math.ceil(Math.random()*(totalDiffObj-1));
+  var num = Math.floor(Math.random()*(totalDiffObj));
   console.log("Block number: "+num);
   addObjinScene(num);
-
   console.log("Added object.\n");
 
   updateNextObj();
@@ -835,7 +903,7 @@ function detectKeyboardAction(){
       rotateDirectionArray(1);
       resetMovAllow();
     }
-
+/*
     if( keyMap[32] ){
       console.log("space pressed");
       console.log( scene.position);
@@ -844,7 +912,7 @@ function detectKeyboardAction(){
       frontCamera.position.z = 14.0;
       frontCamera.lookAt( new THREE.Vector3( 0, 0, frontCamera.position.z) );
     }
-
+*/
   }
   //Enter: buttom to start the game
   //spawn a random block at the startPos
