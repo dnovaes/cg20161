@@ -14,6 +14,9 @@ var depthLimit =           10;
 var borderLimit = {"left": 0.0, "right": 5.0, "up": 5.0, "down": 0.0}
 var movAllow = {"left": 1, "right": 1, "up": 1, "down": 1, "top": 1, "bottom": 1}
 var collidableList       = [];
+var numBlocks = 0;
+var scenarioMatrix = [];
+var startGame = 0, endGame = 0;
 
 function init() {
 
@@ -30,7 +33,7 @@ function init() {
   aspectRatio = window.innerWidth/window.innerHeight;
 
   //PerpectiveCamera(fov, aspect, near, far)
-	frontCamera = new THREE.PerspectiveCamera( 60, 1.09, 0.01, 140.0 );
+	frontCamera = new THREE.PerspectiveCamera( 60, 1.09, 0.01, 20.0 );
 
   frontCamera.position.x = 2.5;
   frontCamera.position.y = 2.5;
@@ -38,8 +41,7 @@ function init() {
   //camera.updateProjectionMatrix();
 	scene.add( frontCamera );
 
-
-  sideCamera = new THREE.OrthographicCamera( -2, 7, -10, 10, -100, 100);
+  sideCamera = new THREE.OrthographicCamera( -1.5, 7, -7, 10, -100, 100);
 
   sideCamera.position.y = 9.5;
 
@@ -58,8 +60,6 @@ function init() {
   m.makeTranslation( prevPos.x, prevPos.y, prevPos.z);
   sideCamera.applyMatrix(m);
   sideCamera.updateMatrix();
-
-console.log(sideCamera.position, prevPos);
 
   //sideCamera.lookAt( new THREE.Vector3( 0, sideCamera.position.y, sideCamera.position.z) );
   scene.add( sideCamera );
@@ -91,6 +91,8 @@ console.log(sideCamera.position, prevPos);
   createWall(tetrisWall, "z", [0.0, 0.0, 0.0]);
 
   collidableList.push(tetrisWall.children);
+  //init the array of collidable legoblocks
+  collidableList[1] = [];
 
   scene.add(tetrisWall);
 
@@ -112,12 +114,38 @@ console.log(sideCamera.position, prevPos);
   mesh.name = "myObj";
   scene.add(mesh);*/
 
+  //init scenarioMatrix
+  initScenarioMatrix();
+
   initGUI();
 
   activateAnimation();
 	//renderer.clear();
 	//renderer.render(scene, frontCamera);
 };
+
+function initScenarioMatrix(){
+
+  for(var depth=0; depth < 8; depth++){
+    scenarioMatrix.push([]);
+    for( var x=0; x<5; x++){
+      scenarioMatrix[depth].push([]);
+      for (var y=0; y<5; y++){
+        scenarioMatrix[depth][x].push([]);
+        scenarioMatrix[depth][x][y] = 0;
+      }
+    }
+  }
+}
+
+function updateMatrixbySceneObj(){
+  obj = selectedObj[1].children[0];
+  for(i=0; i<obj.positions.length; i++){
+    scenarioMatrix[selectedObj[1].position.z-0.5][obj.positions[i].x-0.5][obj.positions[i].y-0.5] = 1;
+    //console.log("added at position: z:", selectedObj[1].position.z-0.5, " x:", obj.positions[i].x-0.5, " y:", obj.positions[i].y-0.5);
+  }
+  //console.log(scenarioMatrix[selectedObj[1].position.z-0.5]);
+}
 
 function doMoveCameraToPos(posVector3){
 	frontCamera.position.x =  posVector3.x;
@@ -141,12 +169,12 @@ function activateAnimation(){
   renderer.setScissorTest( true );
   renderer.render(scene, sideCamera);
 
-  if(selectedObj[1] != null)
-    checkColision();
+  if( selectedObj[1] != null )
+    checkCollision();
 	stats.end();
 }
 
-function checkColision(){
+function checkCollision(){
   //number of decimalPlaces at the colision Numbers
   var decimalPlaces = 12;
   var originPoint = selectedObj[1].position.clone();
@@ -156,27 +184,84 @@ function checkColision(){
   //selectedObj[1].children[0] = Obj (Mesh)
 
   var dirArr = selectedObj[1].children[0].dirArr;
-
-  for( var i=0; i<dirArr.length; i++ ){
-
+  for( var i=0; i<5/*dirArr.length*/; i++ ){
     var directionVector = dirArr[i].clone();
 
     //THREE.ArrowHelper( direction, VectorOrigin, length, hex );
-    //scene.add( new THREE.ArrowHelper(directionVector, originPoint, 4, 0xff0000));
-    var ray = new THREE.Raycaster( originPoint, directionVector.clone().normalize() );
+    //scene.add( new THREE.ArrowHelper(directionVector, originPoint, 4, 0xffff00));
+    var ray = new THREE.Raycaster( originPoint, directionVector.clone().normalize(), 0, 3 );
 
     var collisionResults = ray.intersectObjects( collidableList[0] );
 
+    //test collision with the walls
     if( collisionResults.length > 0 && collisionResults[0].distance.toFixed(decimalPlaces) < directionVector.length().toFixed(decimalPlaces) ){
-      //for (var i=0; i< collisionResults.length; i++){}
-      collisionResults[0].object.material.color.set( 0xff0000 );
+
+      //change the color of the first colisionResult detected
+      //collisionResults[0].object.material.color.set( 0xff0000 );
 
       //print hit direction and disable the hit at the currented colision direction
-      appendText(" HIT! "+ checkHitDirection(i));
-      //*
+      checkHitDirection(i);
+
       //console.log( collisionResults[0].distance, "<", directionVector.length() );
     }
   }
+
+
+
+  i=4;
+  //test collisions with other legobocks in the scene with contact at bottom (i=4)
+  if( collidableList[1].length > 0 && i==4 ){
+    var f_hitObj = 0;
+    for(var j=0; j< collidableList[1].length && !f_hitObj; j++){
+
+      //originPoint = selectedObj position
+
+      //collidable Object
+      var collObj = collidableList[1][j];
+
+      //var distance2D = checkDistance2D( ray, collObj);
+      //console.log(originPoint, collObj.position);
+      if( collObj.position.z == (originPoint.z - 1)){
+
+        //check hits with other objects in scene
+        if(checkHitWithObj(collObj)){
+          appendText(" HIT "+ checkHitDirection(i)+"!");
+          f_hitObj = 1;
+        }
+      }
+    }
+  }
+
+
+}
+
+//check hit by a specific block in the collidable List
+function checkHitWithObj(Obj){
+  var ObjMesh = Obj.children[0];
+  var selPos = selectedObj[1].children[0].positions;
+  //ObjMesh[1] = Obj
+
+  ObjMesh.checkPositions( Obj );
+  selectedObj[1].children[0].checkPositions( selectedObj[1] );
+
+//console.log ( ObjMesh.positions, selectedObj[1].children[0].positions );
+
+  for( var i=0; i< ObjMesh.positions.length; i++){
+    for(var j=0; j< selPos.length; j++){
+      //console.log( selPos, ObjMesh.positions );
+      if( selPos[j].x == ObjMesh.positions[i].x ){
+        if( selPos[j].y == ObjMesh.positions[i].y ){
+          if( selPos[j].z == (ObjMesh.positions[i].z+1)){
+
+            //Hit ocurred
+            //console.log("Hit!");
+            return 1;
+          }
+        }
+      }
+    }
+  }
+  return 0;
 }
 
 function checkHitDirection(index){
@@ -322,14 +407,64 @@ function LegoBlock0(){
 
 	this.Mesh = this.createVertices();
 	this.Vertices = this.Mesh.geometry.vertices;
+
+  this.Mesh.legotype = 0;
   this.Mesh.distance = 0.6;
   this.Mesh.dirArr = [
     new THREE.Vector3( -this.Mesh.distance, 0.0, 0.0),
     new THREE.Vector3( this.Mesh.distance+2, 0.0, 0.0),
     new THREE.Vector3( 0.0, -(this.Mesh.distance+1), 0.0),
     new THREE.Vector3( 0.0, this.Mesh.distance, 0.0),
-    new THREE.Vector3( 0.0, 0.0, -this.Mesh.distance)
+    new THREE.Vector3( 0.0, 0.0, -this.Mesh.distance),
+    new THREE.Vector3( 0.0, 0.0, this.Mesh.distance)
   ]
+
+  this.Mesh.positions = [];
+
+  //always call this functions before to get the positions blocks in this mesh
+  this.Mesh.checkPositions = function (Obj){
+    //Obj = Object3D group
+    var Mesh = Obj.children[0];
+    Mesh.positions = [];
+
+    //add new positions for the blocks in this mesh based on dirArr
+    var dirArr = Mesh.dirArr;
+
+    Mesh.positions.push( new THREE.Vector3( Obj.position.x, Obj.position.y, Obj.position.z));
+
+    if( dirArr[0].x < -0.6 ){
+      var posDiff = Math.abs(dirArr[0].x)-0.6;
+      while(posDiff > 0){
+        Mesh.positions.push( new THREE.Vector3( Obj.position.x-posDiff, Obj.position.y, Obj.position.z));
+        posDiff-=1;
+      }
+    }
+
+    if( dirArr[1].x > Mesh.distance) {
+      var posDiff = Math.abs(dirArr[1].x)-0.6;
+      while(posDiff > 0){
+        Mesh.positions.push( new THREE.Vector3( Obj.position.x+posDiff, Obj.position.y, Obj.position.z));
+        posDiff-=1;
+      }
+    }
+
+    if( dirArr[2].y < -0.6 ){
+      var posDiff = Math.abs(dirArr[2].y)-0.6;
+      while(posDiff > 0){
+        Mesh.positions.push( new THREE.Vector3( Obj.position.x, Obj.position.y-posDiff, Obj.position.z));
+        posDiff-=1;
+      }
+    }
+
+    if( dirArr[3].y > 0.6 ){
+      var posDiff = Math.abs(dirArr[3].y)-0.6;
+      while(posDiff > 0){
+        Mesh.positions.push( new THREE.Vector3( Obj.position.x, Obj.position.y+posDiff, Obj.position.z));
+        posDiff-=1;
+      }
+    }
+  }
+
 	/*Meshblock2 = this.Mesh.clone();
 	Meshblock2.translateX(1);
 	scene.add(Meshblock2);
@@ -381,13 +516,61 @@ function LegoBlock1(){
 
 	this.Mesh = this.createVertices();
   this.Mesh.distance = 0.6;
+  this.Mesh.legotype = 1;
   this.Mesh.dirArr = [
     new THREE.Vector3( -(this.Mesh.distance+1), 0.0, 0.0),
     new THREE.Vector3( this.Mesh.distance+1, 0.0, 0.0),
     new THREE.Vector3( 0.0, -(this.Mesh.distance+1), 0.0),
     new THREE.Vector3( 0.0, this.Mesh.distance, 0.0),
-    new THREE.Vector3( 0.0, 0.0, -this.Mesh.distance)
+    new THREE.Vector3( 0.0, 0.0, -this.Mesh.distance),
+    new THREE.Vector3( 0.0, 0.0, this.Mesh.distance)
   ]
+
+  this.Mesh.positions = [];
+
+  //always call this functions before to get the positions blocks in this mesh
+  this.Mesh.checkPositions = function (Obj){
+    //Obj = Object3D group
+    var Mesh = Obj.children[0];
+    Mesh.positions = [];
+
+    //add new positions for the blocks in this mesh based on dirArr
+    var dirArr = Mesh.dirArr;
+
+    Mesh.positions.push( new THREE.Vector3( Obj.position.x, Obj.position.y, Obj.position.z));
+
+    if( dirArr[0].x < -0.6 ){
+      var posDiff = Math.abs(dirArr[0].x)-0.6;
+      while(posDiff > 0){
+        Mesh.positions.push( new THREE.Vector3( Obj.position.x-posDiff, Obj.position.y, Obj.position.z));
+        posDiff-=1;
+      }
+    }
+
+    if( dirArr[1].x > Mesh.distance) {
+      var posDiff = Math.abs(dirArr[1].x)-0.6;
+      while(posDiff > 0){
+        Mesh.positions.push( new THREE.Vector3( Obj.position.x+posDiff, Obj.position.y, Obj.position.z));
+        posDiff-=1;
+      }
+    }
+
+    if( dirArr[2].y < -0.6 ){
+      var posDiff = Math.abs(dirArr[2].y)-0.6;
+      while(posDiff > 0){
+        Mesh.positions.push( new THREE.Vector3( Obj.position.x, Obj.position.y-posDiff, Obj.position.z));
+        posDiff-=1;
+      }
+    }
+
+    if( dirArr[3].y > 0.6 ){
+      var posDiff = Math.abs(dirArr[3].y)-0.6;
+      while(posDiff > 0){
+        Mesh.positions.push( new THREE.Vector3( Obj.position.x, Obj.position.y+posDiff, Obj.position.z));
+        posDiff-=1;
+      }
+    }
+  }
 }
 
 function LegoBlock2(){
@@ -424,43 +607,64 @@ function LegoBlock2(){
 
 	this.Mesh = this.createVertices();
   this.Mesh.distance = 0.6;
+  this.legotype = 2;
   this.Mesh.dirArr = [
     new THREE.Vector3( -(this.Mesh.distance+1), 0.0, 0.0),
     new THREE.Vector3( this.Mesh.distance, 0.0, 0.0),
     new THREE.Vector3( 0.0, -this.Mesh.distance, 0.0),
     new THREE.Vector3( 0.0, this.Mesh.distance+1, 0.0),
-    new THREE.Vector3( 0.0, 0.0, -this.Mesh.distance)
+    new THREE.Vector3( 0.0, 0.0, -this.Mesh.distance),
+    new THREE.Vector3( 0.0, 0.0, this.Mesh.distance)
   ]
+
+  this.Mesh.positions = [];
+
+  //always call this functions before to get the positions blocks in this mesh
+  this.Mesh.checkPositions = function (Obj){
+    //Obj = Object3D group
+    var Mesh = Obj.children[0];
+    Mesh.positions = [];
+
+    //add new positions for the blocks in this mesh based on dirArr
+    var dirArr = Mesh.dirArr;
+
+    Mesh.positions.push( new THREE.Vector3( Obj.position.x, Obj.position.y, Obj.position.z));
+
+    if( dirArr[0].x < -0.6 ){
+      var posDiff = Math.abs(dirArr[0].x)-0.6;
+      while(posDiff > 0){
+        Mesh.positions.push( new THREE.Vector3( Obj.position.x-posDiff, Obj.position.y, Obj.position.z));
+        posDiff-=1;
+      }
+    }
+
+    if( dirArr[1].x > Mesh.distance) {
+      var posDiff = Math.abs(dirArr[1].x)-0.6;
+      while(posDiff > 0){
+        Mesh.positions.push( new THREE.Vector3( Obj.position.x+posDiff, Obj.position.y, Obj.position.z));
+        posDiff-=1;
+      }
+    }
+
+    if( dirArr[2].y < -0.6 ){
+      var posDiff = Math.abs(dirArr[2].y)-0.6;
+      while(posDiff > 0){
+        Mesh.positions.push( new THREE.Vector3( Obj.position.x, Obj.position.y-posDiff, Obj.position.z));
+        posDiff-=1;
+      }
+    }
+
+    if( dirArr[3].y > 0.6 ){
+      var posDiff = Math.abs(dirArr[3].y)-0.6;
+      while(posDiff > 0){
+        Mesh.positions.push( new THREE.Vector3( Obj.position.x, Obj.position.y+posDiff, Obj.position.z));
+        posDiff-=1;
+      }
+    }
+  }
+
 }
-/*
-function LegoBlock3(){
 
-	this.createVertices = function(){
-		var triangleGeometry = new THREE.Geometry();
-
-		//ArrArg = [front, back, top, bottom, left, right]
-		addBlockGeometrysNextto(triangleGeometry, {x: 0.0, y: 0.0, z: 0.0}, [1, 0, 1, 1, 1, 0]);
-		addBlockGeometrysNextto(triangleGeometry, {x: 0.2, y: 0.0, z: 0.0}, [1, 1, 1, 1, 0, 1]);
-		addBlockGeometrysNextto(triangleGeometry, {x: 0.0, y: 0.0, z:-0.2}, [0, 1, 1, 1, 0, 1]);
-		addBlockGeometrysNextto(triangleGeometry, {x: -0.2, y: 0.0, z:-0.2}, [1, 1, 1, 1, 1, 1]);
-
-		var boxMaterials = [];
-		boxMaterials.push(
-			new THREE.MeshBasicMaterial({color:0xFF0000, side:THREE.DoubleSide}),
-			new THREE.MeshBasicMaterial({color:0x5BDF14, side:THREE.DoubleSide}),
-			new THREE.MeshBasicMaterial({color:0x0000FF, side:THREE.DoubleSide}),
-			new THREE.MeshBasicMaterial({color:0xF0C58D, side:THREE.DoubleSide}),
-			new THREE.MeshBasicMaterial({color:0xE86B9C, side:THREE.DoubleSide}),
-			new THREE.MeshBasicMaterial({color:0xFFFFFF, side:THREE.DoubleSide})
-		);
-		var triangleMaterial = new THREE.MeshFaceMaterial(boxMaterials);
-
-		return new THREE.Mesh(triangleGeometry, triangleMaterial);
-	}
-
-	this.Mesh = this.createVertices();
-}
-*/
 function LegoBlock3(){
 
 	this.createVertices = function(){
@@ -497,13 +701,61 @@ function LegoBlock3(){
 
 	this.Mesh = this.createVertices();
   this.Mesh.distance = 0.6;
+  this.legotype = 3;
   this.Mesh.dirArr = [
     new THREE.Vector3( -this.Mesh.distance, 0.0, 0.0),
     new THREE.Vector3( this.Mesh.distance, 0.0, 0.0),
     new THREE.Vector3( 0.0, -this.Mesh.distance, 0.0),
     new THREE.Vector3( 0.0, this.Mesh.distance, 0.0),
-    new THREE.Vector3( 0.0, 0.0, -this.Mesh.distance)
+    new THREE.Vector3( 0.0, 0.0, -this.Mesh.distance),
+    new THREE.Vector3( 0.0, 0.0, this.Mesh.distance)
   ]
+
+  this.Mesh.positions = [];
+
+  //always call this functions before to get the positions blocks in this mesh
+  this.Mesh.checkPositions = function (Obj){
+    //Obj = Object3D group
+    var Mesh = Obj.children[0];
+    Mesh.positions = [];
+
+    //add new positions for the blocks in this mesh based on dirArr
+    var dirArr = Mesh.dirArr;
+
+    Mesh.positions.push( new THREE.Vector3( Obj.position.x, Obj.position.y, Obj.position.z));
+
+    if( dirArr[0].x < -0.6 ){
+      var posDiff = Math.abs(dirArr[0].x)-0.6;
+      while(posDiff > 0){
+        Mesh.positions.push( new THREE.Vector3( Obj.position.x-posDiff, Obj.position.y, Obj.position.z));
+        posDiff-=1;
+      }
+    }
+
+    if( dirArr[1].x > Mesh.distance) {
+      var posDiff = Math.abs(dirArr[1].x)-0.6;
+      while(posDiff > 0){
+        Mesh.positions.push( new THREE.Vector3( Obj.position.x+posDiff, Obj.position.y, Obj.position.z));
+        posDiff-=1;
+      }
+    }
+
+    if( dirArr[2].y < -0.6 ){
+      var posDiff = Math.abs(dirArr[2].y)-0.6;
+      while(posDiff > 0){
+        Mesh.positions.push( new THREE.Vector3( Obj.position.x, Obj.position.y-posDiff, Obj.position.z));
+        posDiff-=1;
+      }
+    }
+
+    if( dirArr[3].y > 0.6 ){
+      var posDiff = Math.abs(dirArr[3].y)-0.6;
+      while(posDiff > 0){
+        Mesh.positions.push( new THREE.Vector3( Obj.position.x, Obj.position.y+posDiff, Obj.position.z));
+        posDiff-=1;
+      }
+    }
+  }
 }
 
 function rotateDirectionArray(cmdDir){
@@ -538,8 +790,8 @@ function rotateDirectionArray(cmdDir){
     selectedObj[1].children[0].dirArr[1] = new THREE.Vector3(Math.abs(selectedObj[1].children[0].dirArr[3].y), 0, 0);
     selectedObj[1].children[0].dirArr[3] = new THREE.Vector3(0, Math.abs(xNeg), 0);
   }
-  //console.log(selectedObj[1].children[0].dirArr);
-
+  //update positions for the blocks in the mesh
+  //selectedObj[1].children[0].checkPositions();
 }
 
 function addBlockGeometrysNextto(triangleGeometry, TransCoordObj, ArrArg){
@@ -642,9 +894,8 @@ function spawnObjinCenter(){
 
   //Add a random block number
   var num = Math.floor(Math.random()*(totalDiffObj));
-  console.log("Block number: "+num);
+  //console.log("Block number: "+num);
   addObjinScene(num);
-  console.log("Added object.\n");
 
   updateNextObj();
 }
@@ -718,7 +969,7 @@ function addObjinScene(numBlock){
 function doSelectObjinScene(index){
   //[0] = PerpectiveCamera  // [1] = tetrisWall
   if(scene.children.length > 2){
-    changeOpacityByIndexSceneObj(index, 0.4);
+    changeOpacityByIndexSceneObj(index, 0.5);
 
     //make axisHelper visible
     //scene.children[index] = group  | scene.children[index].children[1] = axisHelper
@@ -736,17 +987,25 @@ function doSelectObjinScene(index){
   }
 }
 
-//unselect the selected Obj if there is any.
+//unselect the selected Obj if there is any and add a new one
 function unselectObj(){
   if(selectedObj[1] != null){
     changeOpacityByIndexSceneObj(selectedObj[0], 1.0);
+    //updateMatrix
+    updateMatrixbySceneObj();
 
-    spawnObjinCenter();
-    currIndex = scene.children.length-1;
-//    selectedObj = [currIndex, null];
+    if ( !endGame ){
+      spawnObjinCenter();
+      numBlocks+=1;
+      appendTexttoDiv("Blocos usados: "+numBlocks, "num-blocks");
+      currIndex = scene.children.length-1;
+  //    selectedObj = [currIndex, null];
 
-    //select next ?
-    doSelectObjinScene(currIndex);
+      //select next ?
+      doSelectObjinScene(currIndex);
+    }else{
+      selectedObj[1] = null;
+    }
   }
 }
 
@@ -762,6 +1021,7 @@ function updateNextObj(){
 //changing the opacity of the obj make the use to see if the object is selected or not.
 //AND make axisHelper invisible
 function changeOpacityByIndexSceneObj(index, val){
+  //console.log("objs in scene", scene.children.length, index);
   for(var i=0; i<scene.children[index].children[0].material.materials.length; i++){
     scene.children[index].children[0].material.materials[i].opacity = val;
     scene.children[index].children[0].material.materials[i].transparent = true;
@@ -770,7 +1030,6 @@ function changeOpacityByIndexSceneObj(index, val){
   //then its not a selected object anymore. hide the axisHelper with it too.
   if(val == 1){
     scene.children[index].children[1].visible = false;
-    //make arrowHelper or axisHelper invis
   }
 }
 
@@ -791,32 +1050,8 @@ function getCurrPosfromSelectedObj(){
     }
 }
 
-//deprecable
-/*function isPossibletoGo(direction){
-  if(direction == "right"){
-    if(selectedObj[1].bdLimit.x.max + 1.0 > borderLimit.right){
-      return 0;
-    }
-    return 1;
-  }else if(direction == "left"){
-    if(selectedObj[1].bdLimit.x.min - 1.0 < borderLimit.left){
-      return 0;
-    }
-    return 1;
-  }else if(direction == "up"){
-    if(selectedObj[1].bdLimit.y.max + 1.0 > borderLimit.up){
-      return 0;
-    }
-    return 1;
-  }else if(direction == "down"){
-    if(selectedObj[1].bdLimit.y.min - 1.0 < borderLimit.down){
-      return 0;
-    }
-    return 1;
-  }
-}*/
-
 function detectKeyboardAction(){
+
   if(selectedObj[1] != null){
     m = new THREE.Matrix4();
     m.identity();
@@ -846,6 +1081,7 @@ function detectKeyboardAction(){
         selectedObj[1].updateMatrix();
         //block movemented, reset the "liberty" of movements
         resetMovAllow();
+        f_change = 1;
       }
       //down
       else if(keyMap[40] && movAllow.down){
@@ -880,6 +1116,7 @@ function detectKeyboardAction(){
       //-1 means counter-clockwise
       rotateDirectionArray(-1);
       resetMovAllow();
+      selectedObj[1].children[0].checkPositions(selectedObj[1]);
     }
 
     //Rotation Z
@@ -902,7 +1139,9 @@ function detectKeyboardAction(){
       //1  means clockwise
       rotateDirectionArray(1);
       resetMovAllow();
+      selectedObj[1].children[0].checkPositions(selectedObj[1]);
     }
+
 /*
     if( keyMap[32] ){
       console.log("space pressed");
@@ -916,11 +1155,15 @@ function detectKeyboardAction(){
   }
   //Enter: buttom to start the game
   //spawn a random block at the startPos
-  if(keyMap[13]){
+  if(keyMap[13] && !startGame){
     spawnObjinCenter();
     doSelectObjinScene(scene.children.length-1);
-    console.log(selectedObj[1].children[0].dirArr);
+    //console.log(selectedObj[1].children[0].dirArr);
+    numBlocks+=1;
+    appendTexttoDiv("Blocos usados: "+numBlocks, "num-blocks");
     keyMap[13] = null;
+    //game started!
+    startGame = 1;
   }
 
 }
@@ -940,28 +1183,49 @@ function moveSelectedObj(x, y, z){
 
 $(document).ready(function(){
 
-    document.body.onkeydown = function(e){
-      if(e.keyCode == 9){
-        //console.log("check if there is any selected obj ", selectedObj);
-        if(selectedObj[1] != null){
-          changeOpacityByIndexSceneObj(selectedObj[0], 1.0);
-        }
-        doSelectObjinScene(nextObj);
+/*
+  document.body.onkeydown = function(e){
+    //tab key
+    if(e.keyCode == 9){
+      //console.log("check if there is any selected obj ", selectedObj);
+      if(selectedObj[1] != null){
+        changeOpacityByIndexSceneObj(selectedObj[0], 1.0);
       }
-   }
+      doSelectObjinScene(nextObj);
+    }
+  }
+*/
 
   setInterval(function(){
     detectKeyboardAction();
   }, 1000/9);
 
+  //function that checks the colision of the object in movement with something under it (position z -1)
   setInterval(function(){
     if(selectedObj[1] && !movAllow.bottom){ //&& selectedObj[1].position.z == 0.5){
+
+      collidableList[1].push(selectedObj[1]);
+
+      if ( selectedObj[1].position.z == 7.5 ){
+        clearText();
+        appendText("The End!");
+        console.log("The End!");
+        endGame = 1;
+      }
+
+      //unselect current obj and add a new one if possible
       unselectObj();
+      //checkForCompletedDepthLevel();
       resetMovAllow();
     }
-    if(movAllow.bottom)
+
+    if(movAllow.bottom && selectedObj[1] != null){
       moveSelectedObj(0, 0, -1);
-  }, 1500/1);
+      //update Positions
+      selectedObj[1].children[0].checkPositions(selectedObj[1]);
+    }
+    //console.log("Position: ", selectedObj[1].position);
+  }, 1500/2);
 
 
   $(document).on("keydown keyup", function(e){
