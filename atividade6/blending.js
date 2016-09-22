@@ -119,7 +119,7 @@ $(document).ready(function(){
         }else{
           clearInterval(interval1);
         }
-      }, 1500);
+      }, 1000);
     }else{
 
       clearInterval(interval1);
