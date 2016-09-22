@@ -20,8 +20,7 @@ function init() {
 	scene.add( camera );
 
 	var textureLoader = new THREE.TextureLoader();
-	textureLena = textureLoader.load("../Assets/Images/lena.png");
-  texture = textureLoader.load("../Assets/Images/arya.jpg");
+	texture = textureLoader.load("../Assets/Images/lena.png");
   var txtmaterial = new THREE.MeshBasicMaterial({
     map:texture
   });
@@ -53,7 +52,7 @@ function render(){
   }else{
     //renderer.clear();
     //requestAnimationFrame(render);
-    renderer.setSize(textureLena.image.width, textureLena.image.height);
+    renderer.setSize(texture.image.width, texture.image.height);
 
     var matShader = new THREE.ShaderMaterial( {
       uniforms: {
