@@ -6,7 +6,7 @@ var texture;
 var texture2;
 var alpha1;
 var alpha2;
-var command;
+var xPos;
 var shaderPass;
 
 function init() {
@@ -20,13 +20,13 @@ function init() {
 	scene.add( camera );
 
 	var textureLoader = new THREE.TextureLoader();
-	//texture = textureLoader.load("../Assets/Images/lena.png");
 	texture = textureLoader.load("../Assets/Images/lena.png");
   var txtmaterial = new THREE.MeshBasicMaterial({
     map:texture
   });
 
-  texture2 = textureLoader.load("../Assets/Images/baboon.png");
+  //texture2 = textureLoader.load("../Assets/Images/baboon.png");
+  texture2 = textureLoader.load("../Assets/Images/bandeira_brasil.jpg");
   var txtmaterial2 = new THREE.MeshBasicMaterial({
     map:texture2
   });
@@ -46,12 +46,6 @@ function init() {
 };
 
 function render(){
-/*
-  //checking animation
-  if(shaderPass.uniforms["alpha2"].value >= 1.0){
-    clearInterval(interval1);
-  }
-*/
 
 	if (!texture.image){
 		requestAnimationFrame(render);
@@ -66,7 +60,7 @@ function render(){
         texture2: {type: "t", value: texture2 },
         alpha1: {type: "f", value: alpha1},
         alpha2: {type: "f", value: alpha2},
-        command: {type: "f", value: command},
+        xPos: {type: "f", value: xPos},
       },
       vertexShader: document.getElementById( 'base-vs' ).textContent,
       fragmentShader: document.getElementById( 'base-fs' ).textContent,
@@ -113,23 +107,14 @@ $(document).ready(function(){
       $("#animation2").prop("checked", false);
       $("#animation3").prop("checked", false);
 
-      shaderPass.uniforms["alpha1"].value = 1.0;
-      shaderPass.uniforms["alpha2"].value = 0.0;
+      shaderPass.uniforms["alpha1"].value = 0.5;
+      shaderPass.uniforms["alpha2"].value = 0.5;
 
-      if($("#command").prop("checked") == true){
-        //blending
-        command = 1.0;
-      }else{
-        //aditive
-        command = 2.0;
-      }
-
-      shaderPass.uniforms["command"].value = command;
+      shaderPass.uniforms["xPos"].value = 0.0;
 
       interval1 = setInterval(function(){
-        if(shaderPass.uniforms["alpha2"].value < 1.0){
-          console.log("Animation1 running"+shaderPass.uniforms["alpha2"].value);
-          shaderPass.uniforms["alpha2"].value += 0.1;
+        if(shaderPass.uniforms["xPos"].value < 1.0){
+          shaderPass.uniforms["xPos"].value += 0.05;
           composer.render();
         }else{
           clearInterval(interval1);
@@ -154,15 +139,7 @@ $(document).ready(function(){
       shaderPass.uniforms["alpha1"].value = 1.0;
       shaderPass.uniforms["alpha2"].value = 0.0;
 
-      if($("#command").prop("checked") == true){
-        //blending
-        command = 1.0;
-      }else{
-        //aditive
-        command = 2.0;
-      }
-
-      shaderPass.uniforms["command"].value = command;
+      shaderPass.uniforms["xPos"].value = -1.0;
 
       interval2 = setInterval(function(){
         if(shaderPass.uniforms["alpha1"].value > 0.1){
@@ -180,71 +157,3 @@ $(document).ready(function(){
     }
   });
 });
-
-/*
-
-	var textureLoader = new THREE.TextureLoader();
-	texture = textureLoader.load("../Assets/Images/lena.png");
-
-	document.getElementById("WebGL-output").appendChild(renderer.domElement);
-
-
-	renderer.clear();
-	requestAnimationFrame(render);
-};
-
-
-function render() {
-
-	if (!texture.image) 
-		requestAnimationFrame(render);
-	else {
-		uniforms = {
-			texture: { type: "t", value:texture }
-		};
-		
-		var matShader = new THREE.ShaderMaterial( {
-				uniforms: uniforms,
-				vertexShader: document.getElementById( 'base-vs' ).textContent,
-				fragmentShader: document.getElementById( 'base-fs' ).textContent
-			} );
-		
-		// Plane
-		var planeGeometry = new THREE.PlaneBufferGeometry(1.0, 1.0, 20, 20);                 
-		var plane = new THREE.Mesh( planeGeometry, matShader );
-		plane.position.set(0.0, 0.0, -0.5);
-		scene.add( plane );	
-
-		renderer.setSize(texture.image.width, texture.image.height);
-		renderer.render(scene, camera);
-		}
-}
-
-/*function render() {
-
-	if (!texture.image)
-		requestAnimationFrame(render);
-	else{
-		uniforms = {
-			texture: { type: "t", value:texture },
-      uAlpha: {type: "f", value: uAlpha}
-		};
-
-		var matShader = new THREE.ShaderMaterial({
-				uniforms: uniforms,
-				vertexShader: document.getElementById( 'base-vs' ).textContent,
-				fragmentShader: document.getElementById( 'base-fs' ).textContent
-//        transparent: true
-		});
-
-		// Plane
-		var planeGeometry = new THREE.PlaneBufferGeometry(1.0, 1.0, 20, 20);
-		var plane = new THREE.Mesh( planeGeometry, matShader );
-		plane.position.set(0.0, 0.0, -0.5);
-		scene.add( plane );
-
-		renderer.setSize(texture.image.width, texture.image.height);
-
-  }
-}
-*/
