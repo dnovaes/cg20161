@@ -34,6 +34,7 @@
     uniform float alpha1;
     uniform float alpha2;
     uniform float xPos;
+    uniform int animation;
 
 		varying vec2 vUv;
     vec4 color;
@@ -54,6 +55,15 @@
         }
       }else{
         colorT = (color.rgb*alpha1)+(color2.rgb*alpha2);
+
+        //check if animation3;
+        if(animation == 3){
+          if(color.g < color2.g){
+          //if(color2.rgba == vec4(255, 255, 255, 1.0)){
+          //if(color.rgb == vec3(210, 138, 125)){
+            colorT = color2.rgb;
+          }
+        }
       }
 
 //			gl_FragColor = vec4(c.bgr, 1.0);
@@ -69,7 +79,7 @@
     <h4>Selecione uma animação </h4>
     <input type="checkbox" name="animation1" id="animation1" >Animação 1
     <input type="checkbox" name="animation2" id="animation2" >Animação 2
-<!--    <input type="checkbox" name="command" id="command" >Blending -->
+    <input type="checkbox" name="animation3" id="animation3" >Animação 3
 		<div id="WebGL-output" ></div>
 	</body>
 </html>

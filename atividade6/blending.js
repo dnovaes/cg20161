@@ -6,7 +6,7 @@ var texture;
 var texture2;
 var alpha1;
 var alpha2;
-var xPos;
+var xPos, animation;
 var shaderPass;
 
 function init() {
@@ -61,6 +61,7 @@ function render(){
         alpha1: {type: "f", value: alpha1},
         alpha2: {type: "f", value: alpha2},
         xPos: {type: "f", value: xPos},
+        animation: {type: "int", value: animation},
       },
       vertexShader: document.getElementById( 'base-vs' ).textContent,
       fragmentShader: document.getElementById( 'base-fs' ).textContent,
@@ -97,10 +98,13 @@ $(document).ready(function(){
   $("#animation2").prop("checked", false);
   $("#animation3").prop("checked", false);
 
+  var interval1, interval2;
+
   //Animation 1
   $("#animation1").bind("click", function(){
 
-    var interval1;
+
+    clearInterval(interval2);
 
     if($(this).prop("checked") == true){
 
@@ -111,6 +115,7 @@ $(document).ready(function(){
       shaderPass.uniforms["alpha2"].value = 0.5;
 
       shaderPass.uniforms["xPos"].value = 0.0;
+      shaderPass.uniforms["animation"].value = 1;
 
       interval1 = setInterval(function(){
         if(shaderPass.uniforms["xPos"].value < 1.0){
@@ -129,7 +134,7 @@ $(document).ready(function(){
 
   $("#animation2").bind("click", function(){
 
-    var interval2;
+    clearInterval(interval1);
 
     if($(this).prop("checked") == true){
 
@@ -140,6 +145,7 @@ $(document).ready(function(){
       shaderPass.uniforms["alpha2"].value = 0.0;
 
       shaderPass.uniforms["xPos"].value = -1.0;
+      shaderPass.uniforms["animation"].value = 2;
 
       interval2 = setInterval(function(){
         if(shaderPass.uniforms["alpha1"].value > 0.1){
@@ -151,9 +157,33 @@ $(document).ready(function(){
         }else{
           clearInterval(interval2);
         }
-      }, 1500);
+      }, 1200);
     }else{
       clearInterval(interval2);
     }
   });
+
+  $("#animation3").bind("click", function(){
+
+    clearInterval(interval1);
+    clearInterval(interval2);
+
+    if($(this).prop("checked") == true){
+
+      shaderPass.uniforms["xPos"].value = -1.0;
+      shaderPass.uniforms["animation"].value = 3;
+
+      $("#animation1").prop("checked", false);
+      $("#animation2").prop("checked", false);
+
+      shaderPass.uniforms["alpha1"].value = 1.0;
+      shaderPass.uniforms["alpha2"].value = 0.0;
+
+
+      composer.render();
+      console.log("ok");
+    }
+
+  });
+
 });
