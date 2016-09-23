@@ -75,11 +75,14 @@
 		}
 	</script>
 
-	<body onload="init();">
+	<body onload="init();" style="margin:0 auto;text-align: center;">
     <h4>Selecione uma animação </h4>
     <input type="checkbox" name="animation1" id="animation1" >Animação 1
     <input type="checkbox" name="animation2" id="animation2" >Animação 2
-    <input type="checkbox" name="animation3" id="animation3" >Animação 3
+    <input type="checkbox" name="animation3" id="animation3" >Efeito de Chroma<br>
+    <p>Obs: Efeito de chroma é aplicado em todos os pixels onde a imagem A possui menos to de verde que a imagem B<p>
+    <p><b>Imagem A</b> = lena</p>
+    <p><b>Imagem B</b> =  bandeira</p>
 		<div id="WebGL-output" ></div>
 	</body>
 </html>
