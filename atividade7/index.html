@@ -37,7 +37,6 @@
 		precision mediump float;
 
 		uniform sampler2D texture;
-    uniform vec2 resolution;
     uniform float width;
     uniform float height;
     //uniform sampler2D backbuffer;
@@ -91,9 +90,6 @@
       //vec3 N = vec3(A.y*B.z - A.z*B.y, A.x*B.z - A.z*B.x, A.x*B.y - A.y*B.x);
       //vec3 N = vec3(A.y*B.z - A.z*B.y, A.z*B.x - A.x*B.z, A.x*B.y - A.y*B.x);
       vec3 N = vec3(B.z, A.z, 1.0);
-
-      //how do we normalize it???
-      //N = normalize(N);
 
       // vec3 N = (N.z, A.z, 1);
       vec3 N1 = vec3(((N.x+1.0)/2.0), ((N.y+1.0)/2.0), ((N.z+1.0)/2.0));

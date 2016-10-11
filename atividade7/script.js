@@ -46,39 +46,6 @@ function init(){
     sceneMesh = new THREE.Mesh(sphereGeometry, matShader);
     scene.add(sceneMesh);
 
-    //Cria os passos de renderizacao
-    composer = new THREE.EffectComposer( renderer );
-
-    var renderPass = new THREE.RenderPass(scene, camera);
-
-    shaderPass = new THREE.ShaderPass(matShader);
-    shaderPass.
-
-    composer.renderTarget2.texture = 
-
-    composer.addPass(renderPass);
-    composer.addPass(shaderPass);
-/*
-  //create a sphere
-  var sphereGeometry = new THREE.SphereGeometry(15, 60, 60);
-
-  var textureLoader = new THREE.TextureLoader();
-  texture = textureLoader.load("earthmap4k.jpg");
-
-  sphereMaterial = new THREE.MeshPhongMaterial();
-  sphereMaterial.map = texture;
-
-  //normalMap
-  sceneMesh = new THREE.Mesh( sphereGeometry, sphereMaterial);
-  scene.add(sceneMesh);
-
-  //enviroment light
-  /*
-  var ambientLight = new THREE.AmbientLight( 0x111111 );
-  ambientLight.name = 'ambient';
-  scene.add( ambientLight );
-  */
-
   document.getElementById("WebGL-output").appendChild( renderer.domElement );
   console.log(scene.children);
   render();
