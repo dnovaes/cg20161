@@ -10,16 +10,17 @@
     <script type="text/javascript" src="../libs/jquery-3.1.0.min.js"></script>
     <script type="text/javascript" src="libs/OrbitControls.js"></script>
 
-    
+<!--
     <script type="text/javascript" src="../libs/examples/shaders/CopyShader.js"></script>
     <script type="text/javascript" src="../libs/examples/postprocessing/EffectComposer.js"></script>
     <script type="text/javascript" src="../libs/examples/postprocessing/ShaderPass.js"></script>
     <script type="text/javascript" src="../libs/examples/postprocessing/MaskPass.js"></script>
     <script type="text/javascript" src="../libs/examples/postprocessing/RenderPass.js"></script>
- 
+-->
 
     <script type="text/javascript" src="script.js"></script>
 	</head>
+
 
 	<script id="base-vs" type="x-shader/x-vertex">
 
@@ -36,18 +37,62 @@
 		precision mediump float;
 
 		uniform sampler2D texture;
+    uniform vec2 resolution;
+    //uniform sampler2D backbuffer;
 
 		varying vec2 vUv;
     vec4 color;
 
+    const float scaleHeight = 1.0;
+
 		void main(void) {
 
-      //vUv.x:
-			color = texture2D(texture, vUv);
+      //vUv == position:
+		  color = texture2D(texture, vUv);
 
   	  //gl_FragColor = vec4(color, 1.0);
-      float gray = dot(c.rgb, vec3(0.299, 0.587, 0.114));
-      gl_FragColor = vec4(gray, gray, gray, 1.0);
+      //float gray = dot(color.rgb, vec3(0.299, 0.587, 0.114));
+      //gl_FragColor = vec4(gray, gray, gray, 1.0);
+      //color = vec4(gray, gray, gray, 1.0);
+
+
+      //getting height and normal map
+      //vec2 position = ( gl_FragCoord.xy / resolution.xy );
+      vec2 pixel = 1./resolution;
+      //vec4 color2 = texture2D( backbuffer, position);
+      //gl_FragColor = color2;
+
+      vec4 color_ip1j = texture2D(texture, vUv + vec2(0.01, 0.0));
+      vec4 color_im1j = texture2D(texture, vUv - vec2(0.01, 0.0));
+      vec4 color_ijp1 = texture2D(texture, vUv + vec2(0.0, 0.01));
+      vec4 color_ijm1 = texture2D(texture, vUv - vec2(0.0, 0.01));
+
+      //max value of gray scale in height values
+      float height_max = dot(vec3(255, 255, 255), vec3(0.299, 0.587, 0.114));
+
+      //height values for each adjacent pixels
+      float height_ip1j = dot(color_ip1j.rgb, vec3(0.299, 0.587, 0.114)) / height_max;
+      float height_im1j = dot(color_im1j.rgb, vec3(0.299, 0.587, 0.114)) / height_max;
+      float height_ijp1 = dot(color_ijp1.rgb, vec3(0.299, 0.587, 0.114)) / height_max;
+      float height_ijm1 = dot(color_ijm1.rgb, vec3(0.299, 0.587, 0.114)) / height_max;
+
+      float z1 = (height_ip1j - height_im1j);
+      float z2 = (height_ijp1 - height_ijm1);
+
+      vec3 A = vec3(1, 0, z1);
+      vec3 B = vec3(0, 1, z2);
+
+      //vec3 N = cross(A, B);
+      vec3 N = vec3(A.y*B.z - A.z*B.y, A.x*B.z - A.z*B.x, A.x*B.y - A.y*B.x);
+      //vec3 N = vec3(A.y*B.z - A.z*B.y, A.z*B.x - A.x*B.z, A.x*B.y - A.y*B.x);
+
+      //how do we normalize it???
+      N = normalize(N);
+
+      // vec3 N = (N.z, A.z, 1);
+      vec3 N1 = vec3(((N.x+1.0)/2.0)*255.0, (((N.y+1.0)/2.0)*255.0), (((N.z+1.0)/2.0)*255.0));
+      gl_FragColor = vec4(N1.x, N1.y, N1.z, 1.0);
+
 		}
 
 	</script>

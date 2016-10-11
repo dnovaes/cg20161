@@ -20,7 +20,6 @@ function init(){
   camera.position.z = 63;
   camera.lookAt(scene.position);
   cameraControl =  new THREE.OrbitControls( camera );
-  scene.add( camera );
 
   renderer =  new THREE.WebGLRenderer();
   renderer.setClearColor( 0x000000, 1.0 );
@@ -28,11 +27,35 @@ function init(){
   renderer.setSize(window.innerWidth*0.8, window.innerHeight*0.7);
   //renderer.shadowMap.enabled;
 
+  // cria esfera do planeta Terra
+    var sphereGeometry = new THREE.SphereGeometry(15, 60, 60);
+
+    var textureLoader = new THREE.TextureLoader();
+    texture = textureLoader.load("earthmap4k.jpg");
+
+    var matShader = new THREE.ShaderMaterial({
+        uniforms: {
+          texture: {type: "t", value: texture},
+        },
+        vertexShader: document.getElementById( 'base-vs' ).textContent,
+        fragmentShader: document.getElementById( 'base-fs' ).textContent
+    });
+
+    sceneMesh = new THREE.Mesh(sphereGeometry, matShader);
+    scene.add(sceneMesh);
+/*
   //create a sphere
   var sphereGeometry = new THREE.SphereGeometry(15, 60, 60);
+
   var textureLoader = new THREE.TextureLoader();
   texture = textureLoader.load("earthmap4k.jpg");
-  sceneMesh = new THREE.Mesh( sphereGeometry, texture);
+
+  sphereMaterial = new THREE.MeshPhongMaterial();
+  sphereMaterial.map = texture;
+
+  //normalMap
+
+  sceneMesh = new THREE.Mesh( sphereGeometry, sphereMaterial);
   scene.add(sceneMesh);
 
   //enviroment light
@@ -43,70 +66,38 @@ function init(){
   */
 
   document.getElementById("WebGL-output").appendChild( renderer.domElement );
-  requestAnimationFrame(render);
+  console.log(scene.children);
+  render();
 }
-/*
-function createSphereMaterial(){
-  var textureLoader = new THREE.TextureLoader();
-
-  //var texture = THREE.ImageUtils.loadTexture("earthmap4k.jpg");
-  //var texture = textureLoader.load("amazing_landscape.jpg");
-  //var texture = textureLoader.load("../Assets/Images/bandeira_brasil.jpg");
-  texture = textureLoader.load("earthmap4k.jpg");
-
-
-  var sceneMaterial =  new THREE.MeshBasicMaterial({
-    map:texture
-  });
-  return sceneMaterial;
-
-
-  //var normalMap = THREE.ImageUtils.loadTexture("./amazing_landscape_normalmap.jpǵ");
-
-  var sceneMaterial = new THREE.MeshPhongMaterial();
-  sceneMaterial.map = texture;
-
-  //normalMap
-  //sceneMaterial.normalMap = normalMap;
-  //sceneMaterial.normalScale = new THREE.Vector2(0.5, 0.7);
-
-  return sceneMaterial;
-}
-*/
 
 function render(){
   cameraControl.update();
 
+//renderer.setSize(texture.image.width, texture.image.height);
 
-  if( texture && !texture.image ){
-    requestAnimationFrame(render);
-  }else{
-    //renderer.setSize(texture.image.width, texture.image.height);
+  sceneMesh.rotation.y += 0.005;
 
-    var matShader = new THREE.ShaderMaterial({
-        uniforms: {
-          texture: {type: "t", value: texture},
-        },
-        vertexShader: document.getElementById( 'base-vs' ).textContent,
-        fragmentShader: document.getElementById( 'base-fs' ).textContent
-    });
+  //composer.render();
+  renderer.autoClear = false;
+  renderer.render(scene, camera);
+  requestAnimationFrame(render);
 
-    composer = new THREE.EffectComposer( renderer );
-    var renderPass = new THREE.RenderPass(scene, camera);
-
-    shaderPass = new THREE.ShaderPass(matShader);
-    shaderPass.renderToScreen = true;
-
-    composer.addPass( renderPass );
-    composer.addPass( shaderPass );
-
-    sceneMesh.rotation.y += 0.005;
-
-  //renderer.autoClear = false;
-    composer.render();
-    //renderer.render(scene, camera);
-  }
 }
 
+function createEarthMaterial() {
 
+    var textureLoader = new THREE.TextureLoader();
+    texture = textureLoader.load("earthmap4k.jpg");
+    //texture 	= THREE.ImageUtils.loadTexture("earthmap4k.jpg");
+    //var normalMap 		= THREE.ImageUtils.loadTexture("../../Assets/Textures/earth_normalmap_flat4k.jpg");
+
+    var earthMaterial = new THREE.MeshPhongMaterial();
+    earthMaterial.map = texture;
+
+    // normalMap
+    //earthMaterial.normalMap = normalMap;
+    //earthMaterial.normalScale = new THREE.Vector2(0.5, 0.7);
+
+    return earthMaterial;
+}
 
